@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#PyWeave, Literate programming tool for Python imitating Sweave 
+#Pweave, Literate programming tool for Python imitating Sweave 
 #:Author: Matti Pastell <matti.pastell@helsinki.fi
 import sys
 import StringIO
