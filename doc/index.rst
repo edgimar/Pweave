@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome
--------
-Welcome to Pweave website and documentation. Pweave is a literate programming tool for Python that is developed after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_, that I really like and use for my R projects. Pweave is a single python script that is able to weave a python code between “<<>>=” and “@” blocks and include the results in the document. It supports embedding Python code in
+Introduction
+------------
+Welcome to Pweave website and documentation. Pweave is a literate programming tool for Python that is developed after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. Pweave is a single python script that is able to weave a python code between “<<>>=” and “@” blocks and include the results in the document. Pweave is good for creating dynamic reports and tutorials. 
 
 **Features**
 
@@ -16,7 +16,7 @@ Welcome to Pweave website and documentation. Pweave is a literate programming to
 
 Download
 _________
-Pweave code is hosted on google code. Download the latest version using this `link <http://code.google.com/p/pweave>`_. You can also checkout the code with mercurial using:
+Download the latest stable here: `Pweave <http://files.mpastell.com/Pweave>`_. You can also checkout the latest code with mercurial using:
 
 ::
  
@@ -31,15 +31,15 @@ To install **Pweave** simply copy the "Pweave" file to a directory in your path 
  cp Pweave /usr/local/bin
  chmod a+xr /usr/local/bin/Pweave
 
-Contents
----------
+Help
+______________
 
 .. toctree::
    :maxdepth: 2
 
-**Indices and tables:**
+   usage.rst
+   examples.rst
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+
+
 

@@ -38,7 +38,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pweave - literate programming with Python'
-copyright = u'2010, Matti Pastell'
+copyright = u'2010, Matti Pastell http://mpastell.com'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
