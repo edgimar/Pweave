@@ -3,9 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. raw:: latex
+
+ \pagebreak
+ \section{Introduction}
+
+
 Introduction
 ------------
-Welcome to Pweave website and documentation. Pweave is a literate programming tool for Python that is developed after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. Pweave is a single python script that is able to weave a python code between “<<>>=” and “@” blocks and include the results in the document. Pweave is good for creating dynamic reports and tutorials. 
+Pweave is a literate programming tool for Python that is developed after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. And like Sweave it uses the `noweb <http://www.cs.tufts.edu/~nr/noweb/>`_ syntax. Pweave is a single python script that is able to weave a python code between “<<>>=” and “@” blocks and include the results in the document. Pweave is good for creating dynamic reports and tutorials. This documentation has been created using `Sphinx <http://sphinx.pocoo.org>`_ and you also download it as `pdf <http://mpastell.com/pweave/_static/Pweave-docs.pdf>`_. 
 
 **Features**
 
@@ -39,6 +45,12 @@ ______________
 
    usage.rst
    examples.rst
+
+Other options for literate programming with Python
+____________________________________________________
+
+* `PyLit <http://pylit.berlios.de/>`_
+* `pyreport <http://gael-varoquaux.info/computers/pyreport/>`_
 
 
 

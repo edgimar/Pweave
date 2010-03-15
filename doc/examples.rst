@@ -15,7 +15,7 @@ And as result we get the reST document `ma.rst <_static/ma.rst>`_ (shown below),
 
 .. literalinclude:: ma.rst
 
-Ouput of the example in Sphinx
+Output of the example in Sphinx
 ------------------------------
 
 The produced rst file can of course also be included in a Sphinx document, like this website using ".. include:: ma.rst". Here is what it looks like:

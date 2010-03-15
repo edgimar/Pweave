@@ -34,7 +34,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'docs'
 
 # General information about the project.
 project = u'Pweave - literate programming with Python'
@@ -60,7 +60,7 @@ release = '0.1'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-#unused_docs = []
+unused_docs = ['ma']
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
@@ -172,8 +172,8 @@ latex_font_size = '12pt'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Pweave-docs.tex', u'Pweave - literate programming with Python',
-   u'Matti Pastell', 'manual'),
+  ('docs', 'Pweave-docs.tex', u'Pweave - literate programming with Python',
+   u'Matti Pastell\\\ http://mpastell.com/pweave', 'article'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
