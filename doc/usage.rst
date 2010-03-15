@@ -1,7 +1,27 @@
 
-Documentation
+.. raw:: latex
+
+ \pagebreak
+
+Pweave Help
 ===============
 
+Features
+______________________
+
+`Pweave <http://mpastell.com/pweave>`_ is a literate programming tool for Python that is developed
+after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. And
+like Sweave it uses the `noweb <http://www.cs.tufts.edu/~nr/noweb/>`_
+syntax. Pweave is a single python script that is able to weave a
+python code between “<<>>=” and “@” blocks and include the results in
+the document. Pweave is good for creating dynamic reports and
+tutorials. 
+
+**Features**
+
+* Execute python code in the blocks and capture input and ouput to a literate environment using  either `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ or Latex source. Using reST enables conversion of the documents to several formats (html, latex, pdf, odt).
+* Use hidden code blocks, i.e. code is executed, but not printed in the output file.
+* Capture matplotlib graphics.
 
 Document types
 ________________

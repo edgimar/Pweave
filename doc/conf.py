@@ -60,7 +60,7 @@ release = '0.1'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['ma']
+unused_docs = ['ma','index']
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
