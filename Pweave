@@ -12,19 +12,13 @@ if len(sys.argv)==1:
     sys.exit()
 
 #Command line options
-parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.1")
-parser.add_option("-f", "--format", dest="format", default='rst',
-                  help="The ouput format: 'rst' (default) or 'tex'")
+parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.11")
+parser.add_option("-f", "--format", dest="format", default='sphinx',
+                  help="The ouput format: 'sphinx' (default), 'rst' or 'tex'")
 
 (options, args) = parser.parse_args()
 format = options.format
 infile = args[0]
-
-#Open the file to be processed and get the output file name
-codefile = open(infile, 'r')
-outfile = infile.split('.')[0] + '.' + format
-sys.stdout = open(outfile, 'w')
-lines = codefile.readlines()
 
 #Format specific options for tex or rst
 if format == 'tex':
@@ -34,6 +28,7 @@ if format == 'tex':
     outputend = '\end{verbatim}\n' 
     codeindent = ''
     figfmt = '.pdf'
+    ext = 'tex'
 if format == 'rst':
     codestart = '::\n' 
     codeend = ''
@@ -41,6 +36,24 @@ if format == 'rst':
     outputend = '' 
     codeindent = '  '
     figfmt = '.png'
+    figfmt2 = '.pdf'
+    ext = 'rst'
+if format == 'sphinx':
+    codestart = '::\n' 
+    codeend = ''
+    outputstart = '::\n' 
+    outputend = '' 
+    codeindent = '  '
+    figfmt = '.png'
+    figfmt2 = '.pdf'
+    ext = 'rst'
+
+
+#Open the file to be processed and get the output file name
+codefile = open(infile, 'r')
+outfile = infile.split('.')[0] + '.' + ext
+sys.stdout = open(outfile, 'w')
+lines = codefile.readlines()
 
 #Initialize some variables
 state = 'text'
@@ -110,9 +123,20 @@ for line in lines:
             figname = 'Fig' +str(nfig) + figfmt
             from pylab import savefig
             savefig(figname)
+            if format == 'rst' or format == 'sphinx':
+                figname2 ='Fig' +str(nfig) + figfmt2
+                savefig(figname2)
             clf()
             if format == 'rst':
-                print '.. image:: ', figname, '\n'
+                print '.. raw:: html', '\n'
+                print ' <image src="' + figname + '"/> \n' 
+                print '.. raw:: latex', '\n'
+                print ' \includegraphics{' + figname2 + '}\n'
+            if format == 'sphinx':
+                print '.. only:: html', '\n'
+                print ' .. image:: ' + figname + '\n'
+                print '.. only:: latex', '\n'
+                print ' .. image:: ' + figname2 + '\n'
             if format == 'tex':
                 print '\includegraphics{'+ figname + '}\n'
             nfig = nfig +1
