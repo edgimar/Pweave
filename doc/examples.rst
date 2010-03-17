@@ -1,3 +1,6 @@
+
+.. index:: example
+
 reST example
 -------------
 
@@ -14,6 +17,8 @@ The file was processed with Pweave using:
 And as result we get the reST document `ma.rst <_static/ma.rst>`_ (shown below), which can be turned into pdf using rst2latex and pdflatex: `ma.pdf <_static/ma.pdf>`_. 
 
 .. literalinclude:: ma.rst
+
+.. index:: Sphinx example
 
 Output of the example in Sphinx
 ------------------------------

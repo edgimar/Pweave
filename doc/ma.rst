@@ -40,5 +40,11 @@ Pweave Example - Frequency response of a moving average filter
   xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
   title('Frequency response of an 11 point \n moving average filter')
 
-.. image::  Fig1.png 
+.. only:: html 
+
+ .. image:: Fig1.png
+
+.. only:: latex 
+
+ .. image:: Fig1.pdf
 

@@ -173,7 +173,7 @@ latex_font_size = '12pt'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('docs', 'Pweave-docs.tex', u'Pweave - literate programming with Python',
-   u'Matti Pastell\\\ http://mpastell.com/pweave', 'article'),
+   u'Matti Pastell \\\ \\\ \\url{http://mpastell.com/pweave} \\\ ', 'article'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -184,8 +184,13 @@ latex_documents = [
 # not chapters.
 #latex_use_parts = False
 
-# Additional stuff for the LaTeX preamble.
-#latex_preamble = ''
+latex_elements = {
+    'maketitle' : '\\maketitle \\pagebreak', 
+    'tableofcontents' : '\\tableofcontents \\pagebreak',
+    'preamble' : '\usepackage{pweave}'   
+}
+
+latex_additional_files = ['pweave.sty']
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []

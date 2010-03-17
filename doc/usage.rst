@@ -1,10 +1,8 @@
 
-.. raw:: latex
-
- \pagebreak
-
 Pweave Help
 ===============
+
+.. index:: features
 
 Features
 ______________________
@@ -17,11 +15,13 @@ python code between “<<>>=” and “@” blocks and include the results in
 the document. Pweave is good for creating dynamic reports and
 tutorials. 
 
-**Features**
+**With Pweave you can:**
 
 * Execute python code in the blocks and capture input and ouput to a literate environment using  either `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ or Latex source. Using reST enables conversion of the documents to several formats (html, latex, pdf, odt).
 * Use hidden code blocks, i.e. code is executed, but not printed in the output file.
 * Capture matplotlib graphics.
+
+.. index:: source document, output document
 
 Document types
 ________________
@@ -30,6 +30,8 @@ ________________
 
 * **Output document:** Contains the documentation, original code, the captured outputof the code and optionally captured `matplotlib <http://matplotlib.sourceforge.net/>`_ figures   
 
+.. index::  syntax, code chunk, documentation chunk
+
 Pweave syntax
 _____________
 Pweave uses noweb syntax for defining the code chunks and documentation chunks, just like `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. 
@@ -37,6 +39,8 @@ Pweave uses noweb syntax for defining the code chunks and documentation chunks, 
 * **Code chunks** start with a line marked with <<>>= or <<option>>= and end with line marked with @. The code between the start and end markers is executed and the output is captured to the output document.
 
 * **Documentation chunks** Are the rest of the document (between @ and <<>>= lines) and can be written using either reST or Latex.
+
+.. index:: options, figures
 
 Options
 _______
