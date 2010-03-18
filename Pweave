@@ -21,15 +21,23 @@ parser.add_option("-f", "--format", dest="format", default='sphinx',
                   help="The ouput format: 'sphinx' (default), 'rst' or 'tex'")
 parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
                   help="Do you want to use matplotlib true (default) or false")
+parser.add_option("-g", "--figureformat", dest="figfmt",
+                  help="Figure format for matplolib graphics: Defaults to 'png' for rst and Sphinx html documents and 'pdf' for tex")
+#parser.add_option("-s", "--sphinx-figure-format", dest="sphinxfigfmt",
+#                  help="Figure format Sphinx latex document: Defaults to 'pdf'")
+
+
 (options, args) = parser.parse_args()
 format = options.format
 infile = args[0]
+
 
 # Is matplotlib used? 
 
 if options.mplotlib.lower() == 'true':
     import matplotlib
     matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
 
 # Format specific options for tex or rst
 
@@ -48,7 +56,6 @@ if format == 'rst':
     outputend = '' 
     codeindent = '  '
     figfmt = '.png'
-    figfmt2 = '.pdf'
     ext = 'rst'
 if format == 'sphinx':
     codestart = '::\n' 
@@ -57,8 +64,15 @@ if format == 'sphinx':
     outputend = '' 
     codeindent = '  '
     figfmt = '.png'
-    figfmt2 = '.pdf'
+    sphinxtexfigfmt = '.pdf'
     ext = 'rst'
+
+# Override the default fig format with command line option
+
+if options.figfmt > 0:
+    figfmt = '.' + options.figfmt
+#if options.sphinxfigfmt > 0:
+#    sphinxtexfigfmt = '.' + options.sphinxfigfmt
 
 # Open the file to be processed and get the output file name
 
@@ -139,24 +153,16 @@ for line in lines:
         #Save and include a figure?
         if fig:
             figname = 'Fig' +str(nfig) + figfmt
-            import matplotlib.pyplot as plt
             plt.savefig(figname)
-            from pylab import savefig
             #savefig(figname)
-            if format == 'rst' or format == 'sphinx':
-                figname2 ='Fig' +str(nfig) + figfmt2
+            if format == 'sphinx':
+                figname2 ='Fig' +str(nfig) +  sphinxtexfigfmt
                 plt.savefig(figname2)
             plt.clf()
             if format == 'rst':
-                print '.. raw:: html', '\n'
-                print ' <image src="' + figname + '"/> \n' 
-                print '.. raw:: latex', '\n'
-                print ' \includegraphics{' + figname2 + '}\n'
+                print '.. image:: ' + figname + '\n'
             if format == 'sphinx':
-                print '.. only:: html', '\n'
-                print ' .. image:: ' + figname + '\n'
-                print '.. only:: latex', '\n'
-                print ' .. image:: ' + figname2 + '\n'
+                print '.. image:: Fig' + str(nfig)  + '.*\n'
             if format == 'tex':
                 print '\includegraphics{'+ figname + '}\n'
             nfig = nfig +1
