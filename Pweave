@@ -23,9 +23,6 @@ parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
                   help="Do you want to use matplotlib true (default) or false")
 parser.add_option("-g", "--figureformat", dest="figfmt",
                   help="Figure format for matplolib graphics: Defaults to 'png' for rst and Sphinx html documents and 'pdf' for tex")
-#parser.add_option("-s", "--sphinx-figure-format", dest="sphinxfigfmt",
-#                  help="Figure format Sphinx latex document: Defaults to 'pdf'")
-
 
 (options, args) = parser.parse_args()
 format = options.format
@@ -71,13 +68,12 @@ if format == 'sphinx':
 
 if options.figfmt > 0:
     figfmt = '.' + options.figfmt
-#if options.sphinxfigfmt > 0:
-#    sphinxtexfigfmt = '.' + options.sphinxfigfmt
 
 # Open the file to be processed and get the output file name
 
 codefile = open(infile, 'r')
 outfile = infile.split('.')[0] + '.' + ext
+pyfile = infile.split('.')[0] + '.' + 'py'
 sys.stdout = open(outfile, 'w')
 lines = codefile.readlines()
 
@@ -86,6 +82,7 @@ lines = codefile.readlines()
 state = 'text'
 block = ''
 nfig = 1
+allcode = ''
 
 # A function for parsing options
 
@@ -94,9 +91,10 @@ def options(optionstring):
     results = 'verbatim'
     fig = False
     eval = True
+    width = '15 cm'
     optionstring = re.sub(',', ';', optionstring)
     exec(optionstring)
-    return(echo, results, fig)
+    return(echo, results, fig, width)
 
 # Process the whole text file with a loop
 
@@ -113,7 +111,7 @@ for line in lines:
 # The codeblock has ended, less process it
     if line.startswith('@'):
     #Get options 
-        echo, results, fig = options(optionstring)
+        echo, results, fig, width = options(optionstring)
         #include source?
         if echo:
             #Split the code block and output Rst block
@@ -129,7 +127,7 @@ for line in lines:
             if fig:
                 #A placeholder for figure options
                 #import matplotlib
-                #matplotlib.rcParams['figure.figsize'] = (5.5, 4.5)
+                #matplotlib.rcParams['figure.figsize'] = (6, 4.5)
                 pass
         #Write output to a StringIO object
             tmp = StringIO.StringIO()
@@ -153,19 +151,22 @@ for line in lines:
         #Save and include a figure?
         if fig:
             figname = 'Fig' +str(nfig) + figfmt
-            plt.savefig(figname)
+            plt.savefig(figname, dpi = 200)
             #savefig(figname)
             if format == 'sphinx':
                 figname2 ='Fig' +str(nfig) +  sphinxtexfigfmt
                 plt.savefig(figname2)
             plt.clf()
             if format == 'rst':
-                print '.. image:: ' + figname + '\n'
+                print '.. image:: ' + figname
+                print '   :width: ' + width + '\n'
             if format == 'sphinx':
-                print '.. image:: Fig' + str(nfig)  + '.*\n'
+                print '.. image:: Fig' + str(nfig)  + '.*'
+                print '   :width: ' + width 
             if format == 'tex':
                 print '\includegraphics{'+ figname + '}\n'
             nfig = nfig +1
+        allcode = allcode + block
         block = ''
         state = 'text'
         line = ''
@@ -179,8 +180,12 @@ for line in lines:
     if state == 'text':
         print line, 
 
-# Done processing the file, tell the user what has happened
+# Done processing the file, save extracted code and tell the user what has happened
+extfile = open(pyfile ,'w')
+extfile.write(allcode)
+extfile.close()
 
 codefile.close()
 sys.stdout = sys.__stdout__
-print 'Output written to ', outfile
+print 'Output written to', outfile
+print 'Code extracted to', pyfile

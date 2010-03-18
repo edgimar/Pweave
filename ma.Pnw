@@ -24,7 +24,7 @@ print(b)
 
 **Calculate the frequency response and plot it:**
 
-<<fig = True>>=
+<<fig = True, width = '12 cm'>>=
 w, h = mfreqz(b)
 #Plot the function
 plot(w,h,'k')
