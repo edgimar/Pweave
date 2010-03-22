@@ -41,6 +41,5 @@ Pweave Example - Frequency response of a moving average filter
   title('Frequency response of an 11 point \n moving average filter')
   show()
 
-.. image:: Fig1.png
+.. image:: images/Fig1.*
    :width: 15 cm
-

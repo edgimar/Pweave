@@ -17,7 +17,7 @@ tutorials.
 
 **With Pweave you can:**
 
-* Execute python code in the blocks and capture input and ouput to a literate environment using  either `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ or Latex source. Using reST enables conversion of the documents to several formats (html, latex, pdf, odt).
+* Execute python code in the blocks and capture input and ouput to a literate environment using  either `reStructuredText <http://docutils.sourceforge.net/rst.html>`_, `Sphinx <http://sphinx.pocoo.org>`_ or Latex markup. Using reST or Sphinx enables conversion of the documents to several formats (html, latex, pdf, odt).
 * Use hidden code blocks, i.e. code is executed, but not printed in the output file.
 * Capture matplotlib graphics.
 
@@ -44,9 +44,10 @@ Pweave uses noweb syntax for defining the code chunks and documentation chunks, 
 
 Options
 _______
-Pweave currently has the following options for processing the code chunks (e.g. <<fig=True>>=):
+Pweave currently has the following options for processing the code chunks (e.g. <<fig=True, width='20 cm'>>=):
 
 * **fig:** True or (False). Whether a matplotlib plot produced by the code chunk should be included in the file.
+* **width** The width of the used figure in reST or Sphinx document (using reST markup). Default is '15 cm'. 
 * **echo:** True or (False). Echo the python code in the output document.
 * **eval:** True or (False). Evaluate the code chunk,
 * **results:** "verbatim", (“rst”, “tex”). The output format of the printed results.
@@ -54,7 +55,7 @@ Pweave currently has the following options for processing the code chunks (e.g. 
 Calling Pweave
 _______________
 
-Processing a reST source document:
+Processing a Sphinx source document:
 
 ::
 
