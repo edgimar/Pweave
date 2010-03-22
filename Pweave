@@ -9,6 +9,7 @@ import sys
 import StringIO
 import re
 from optparse import OptionParser
+import os
 
 if len(sys.argv)==1:
     print "This is Pweave, enter Pweave -h for help"
@@ -21,9 +22,10 @@ parser.add_option("-f", "--format", dest="format", default='sphinx',
                   help="The ouput format: 'sphinx' (default), 'rst' or 'tex'")
 parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
                   help="Do you want to use matplotlib true (default) or false")
-parser.add_option("-g", "--figureformat", dest="figfmt",
+parser.add_option("-g", "--figure-format", dest="figfmt",
                   help="Figure format for matplolib graphics: Defaults to 'png' for rst and Sphinx html documents and 'pdf' for tex")
-
+parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
+                  help="Directory path for matplolib graphics: Defaults 'images/'")
 (options, args) = parser.parse_args()
 format = options.format
 infile = args[0]
@@ -83,6 +85,12 @@ state = 'text'
 block = ''
 nfig = 1
 allcode = ''
+imgdir = options.figdir
+
+# Create figure directory if it doesn't exist
+if os.path.isdir(imgdir) == False:
+    os.mkdir(imgdir)
+
 
 # A function for parsing options
 
@@ -94,7 +102,7 @@ def options(optionstring):
     width = '15 cm'
     optionstring = re.sub(',', ';', optionstring)
     exec(optionstring)
-    return(echo, results, fig, width)
+    return(echo, results, eval, fig, width)
 
 # Process the whole text file with a loop
 
@@ -111,7 +119,7 @@ for line in lines:
 # The codeblock has ended, less process it
     if line.startswith('@'):
     #Get options 
-        echo, results, fig, width = options(optionstring)
+        echo, results, eval, fig, width = options(optionstring)
         #include source?
         if echo:
             #Split the code block and output Rst block
@@ -147,14 +155,15 @@ for line in lines:
                 print indent + x
             print
             if results == "verbatim":
-                print outputend                
+                print outputend
+            result = ''
         #Save and include a figure?
         if fig:
-            figname = 'Fig' +str(nfig) + figfmt
+            figname = imgdir + 'Fig' +str(nfig) + figfmt
             plt.savefig(figname, dpi = 200)
             #savefig(figname)
             if format == 'sphinx':
-                figname2 ='Fig' +str(nfig) +  sphinxtexfigfmt
+                figname2 = imgdir + 'Fig' +str(nfig) +  sphinxtexfigfmt
                 plt.savefig(figname2)
             plt.clf()
             if format == 'rst':
