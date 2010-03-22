@@ -105,6 +105,9 @@ html_theme = 'sphinxdoc'
 # "<project> v<release> documentation".
 html_title = "Pweave - literate programming with Python"
 
+# Different theme for index
+#html_additional_pages = {'index' : 'customindex.html'}
+
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
 
