@@ -170,7 +170,7 @@ for line in lines:
                 print '.. image:: ' + figname
                 print '   :width: ' + width + '\n'
             if format == 'sphinx':
-                print '.. image:: Fig' + str(nfig)  + '.*'
+                print '.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*'
                 print '   :width: ' + width 
             if format == 'tex':
                 print '\includegraphics{'+ figname + '}\n'
