@@ -34,6 +34,12 @@ title('Frequency response of an 11 point \n moving average filter')
 show()
 @
 
+**Create a figure with a caption**
+
+<<fig = True, caption = 'Test figure'>>=
+plot(arange(10))
+show()
+@
 
 
 

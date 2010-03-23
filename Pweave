@@ -17,7 +17,7 @@ if len(sys.argv)==1:
 
 # Command line options
 
-parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.11")
+parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.12")
 parser.add_option("-f", "--format", dest="format", default='sphinx',
                   help="The ouput format: 'sphinx' (default), 'rst' or 'tex'")
 parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
@@ -25,7 +25,7 @@ parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
 parser.add_option("-g", "--figure-format", dest="figfmt",
                   help="Figure format for matplolib graphics: Defaults to 'png' for rst and Sphinx html documents and 'pdf' for tex")
 parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
-                  help="Directory path for matplolib graphics: Defaults 'images/'")
+                  help="Directory path for matplolib graphics: Default 'images/'")
 (options, args) = parser.parse_args()
 format = options.format
 infile = args[0]
@@ -100,9 +100,10 @@ def options(optionstring):
     fig = False
     eval = True
     width = '15 cm'
+    caption = False
     optionstring = re.sub(',', ';', optionstring)
     exec(optionstring)
-    return(echo, results, eval, fig, width)
+    return(echo, results, eval, fig, width, caption)
 
 # Process the whole text file with a loop
 
@@ -119,7 +120,7 @@ for line in lines:
 # The codeblock has ended, less process it
     if line.startswith('@'):
     #Get options 
-        echo, results, eval, fig, width = options(optionstring)
+        echo, results, eval, fig, width, caption = options(optionstring)
         #include source?
         if echo:
             #Split the code block and output Rst block
@@ -167,13 +168,31 @@ for line in lines:
                 plt.savefig(figname2)
             plt.clf()
             if format == 'rst':
-                print '.. image:: ' + figname
-                print '   :width: ' + width + '\n'
+                if caption > 0:
+                    #If the image has a caption, use Figure directive
+                    print '.. figure:: ' + figname
+                    print '   :width: ' + width + '\n'
+                    print '   ' + caption + '\n'   
+                else:
+                    print '.. image:: ' + figname
+                    print '   :width: ' + width + '\n'
             if format == 'sphinx':
-                print '.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*'
-                print '   :width: ' + width 
+                if caption > 0:
+                    print '.. figure:: ' + imgdir + 'Fig' + str(nfig)  + '.*'
+                    print '   :width: ' + width + '\n'
+                    print '   ' + caption + '\n'   
+                else:
+                    print '.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*'
+                    print '   :width: ' + width + '\n'
             if format == 'tex':
-                print '\includegraphics{'+ figname + '}\n'
+                if caption > 0:
+                    print r'\begin{figure}'
+                    print '\includegraphics{'+ figname + '}'
+                    print '\caption{' + caption + '}'
+                    print '\end{figure}'                 
+                else:
+                    print '\includegraphics{'+ figname + '}\n'
+
             nfig = nfig +1
         allcode = allcode + block
         block = ''
