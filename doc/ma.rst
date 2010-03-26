@@ -38,8 +38,10 @@ Pweave Example - Frequency response of a moving average filter
   plot(w,h,'k')
   ylabel('Amplitude')
   xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
-  title('Frequency response of an 11 point \n moving average filter')
   show()
 
-.. image:: images/Fig1.*
+.. figure:: images/Fig1.*
    :width: 15 cm
+
+   Frequency response of an 11 point moving average filter
+
