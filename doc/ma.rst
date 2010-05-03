@@ -15,18 +15,16 @@ Pweave Example - Frequency response of a moving average filter
       w,h = signal.freqz(b,a)
       h = abs(h)
       return(w/max(w), h)
-  
-  #Make the impulse response function
-  n = 11.
-  b = repeat(1/n, n)
-  #Print impulse response of the filter
-  print(b)
 
-::
 
-  [ 0.09090909  0.09090909  0.09090909  0.09090909  0.09090909  0.09090909
-    0.09090909  0.09090909  0.09090909  0.09090909  0.09090909]
+ 
+**Make the impulse response function**
 
+>>> n = 11.
+>>> b = repeat(1/n, n)
+>>> print(b)
+[ 0.09090909  0.09090909  0.09090909  0.09090909  0.09090909  0.09090909
+  0.09090909  0.09090909  0.09090909  0.09090909  0.09090909]
 
  
 **Calculate the frequency response and plot it:**
@@ -39,6 +37,7 @@ Pweave Example - Frequency response of a moving average filter
   ylabel('Amplitude')
   xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
   show()
+
 
 .. figure:: images/Fig1.*
    :width: 15 cm

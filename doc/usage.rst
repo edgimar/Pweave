@@ -1,11 +1,11 @@
 
 Pweave Help
-===============
+==============
 
 .. index:: features
 
 Features
-______________________
+____________
 
 `Pweave <http://mpastell.com/pweave>`_ is a literate programming tool for Python that is developed
 after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. And
@@ -30,7 +30,7 @@ ________________
 
    Contains a mixture of documentation and code chunks. Pweave will evaluate the code and leave the documentation chunks as they are. The documentation chunks can be written either with reST or Latex. The source document is processed using *Pweave*, which gives us the formatted output document.
 
-.. describe:: Weave document
+.. describe:: Weaved document
 
    Is produced by Pweave from the source document. Contains the documentation, original code, the captured outputof the code and optionally captured `matplotlib <http://matplotlib.sourceforge.net/>`_ figures.
 
@@ -61,7 +61,7 @@ Pweave currently has the following options for processing the code chunks.
 
 .. envvar:: fig = True or (False)
    
-   Whether a matplotlib plot produced by the code chunk should be included in the file.
+   Whether a matplotlib plot produced by the code chunk should be included in the file. The figure will be added with '.. image::' directive in .rst and \\includegraphics tag in .tex documents. See the 'caption' option if you want to use figure environment.  
 
 .. envvar:: width = '15 cm'
   
@@ -75,9 +75,15 @@ Pweave currently has the following options for processing the code chunks.
 
    Evaluate the code chunk. If False the chunk won't be executed.
 
-.. envvar:: results = "verbatim"
+.. envvar:: results = 'verbatim'
 
   The output format of the printed results. 'verbatim' for literal block, rst for reST output or 'tex' for latex output.
+
+.. envvar:: caption = ''
+
+   A string providing a caption for the figure produced in the code chunk. Can only be used with 'fig = True' option. If a caption is provided the figure will be added in the .rst document with the '.. figure::' directive and as a figure float in Latex.  
+
+.. versionadded:: 0.12
 
 Example
 --------
@@ -95,7 +101,7 @@ A code chunk that saves and displays a 12 cm wide image and hides the source cod
 Weaving Pweave Documents
 ________________________
 
-Weaving a Pweave source file produces too output files a .rst document or a .tex document that contains the weaved code together with its evaluated output and a .py file that contains the python code extracted from the document. All of the produced figures are placed in the 'images/' folder as a default.
+Weaving a Pweave source file produces too output files: .rst document or .tex document that contains the weaved code together with its evaluated output and .py file that contains the python code extracted from the document. All of the produced figures are placed in the 'images/' folder as a default.
 
 **Pweave documents are weaved from the shell with the command:**
 

@@ -1,5 +1,5 @@
 
-.. index:: example
+.. index:: reST example
 
 reST example
 -------------
@@ -21,7 +21,7 @@ And as result we get the reST document `ma.rst <_static/ma.rst>`_ (shown below) 
 .. index:: Sphinx example
 
 Output of the example in Sphinx
-------------------------------
+--------------------------------
 
 The produced rst file be included in a Sphinx document, like this website using ".. include:: ma.rst". Here is what it looks like:
 

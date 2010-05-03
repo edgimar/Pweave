@@ -14,11 +14,13 @@ def mfreqz(b,a=1):
     w,h = signal.freqz(b,a)
     h = abs(h)
     return(w/max(w), h)
+@ 
 
-#Make the impulse response function
+**Make the impulse response function**
+
+<<dtmode = True>>=
 n = 11.
 b = repeat(1/n, n)
-#Print impulse response of the filter
 print(b)
 @
 
@@ -31,4 +33,4 @@ plot(w,h,'k')
 ylabel('Amplitude')
 xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
 show()
-@
+@ 
