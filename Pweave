@@ -124,8 +124,8 @@ for line in lines:
         #Output in doctests mode
         #print dtmode
         if dtmode:
-           #print codestart
-           #Write output to a StringIO object
+            print
+            #Write output to a StringIO object
             tmp = StringIO.StringIO()
             #loop trough the code lines
             for x in block.splitlines():
