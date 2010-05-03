@@ -1,5 +1,5 @@
 Pweave Example - Frequency response of a moving average filter
-========================================================================
+==============================================================
 
 :Author: Matti Pastell <matti.pastell@helsinki.fi>
 :Website: http://mpastell.com
@@ -18,7 +18,8 @@ Pweave Example - Frequency response of a moving average filter
 
 
  
-**Make the impulse response function**
+**Make the impulse response function and format the code chunk and output as doctest block.**
+
 
 >>> n = 11.
 >>> b = repeat(1/n, n)
@@ -26,7 +27,10 @@ Pweave Example - Frequency response of a moving average filter
 [ 0.09090909  0.09090909  0.09090909  0.09090909  0.09090909  0.09090909
   0.09090909  0.09090909  0.09090909  0.09090909  0.09090909]
 
+
  
+
+
 **Calculate the frequency response and plot it:**
 
 ::
@@ -39,8 +43,27 @@ Pweave Example - Frequency response of a moving average filter
   show()
 
 
-.. figure:: images/Fig1.*
+.. figure:: images/Fig1.png
    :width: 15 cm
 
    Frequency response of an 11 point moving average filter
+
+ 
+
+**The first 10 values of the frequency response (w,h) as a table, notice that the code is hidden in the output document.**
+
+.. csv-table::
+   :header: "Amplitude", "Frequency"
+
+
+   1.0 , 0.0
+   1.0 , 0.0
+   1.0 , 0.0
+   1.0 , 0.01
+   1.0 , 0.01
+   1.0 , 0.01
+   0.99 , 0.01
+   0.99 , 0.01
+   0.99 , 0.02
+   0.98 , 0.02
 

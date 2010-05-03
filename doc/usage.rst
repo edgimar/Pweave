@@ -1,11 +1,11 @@
 
 Pweave Help
-==============
+===========
 
 .. index:: features
 
 Features
-____________
+________
 
 `Pweave <http://mpastell.com/pweave>`_ is a literate programming tool for Python that is developed
 after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. And
@@ -24,7 +24,7 @@ tutorials.
 .. index:: source document, output document
 
 Document types
-________________
+______________
 
 .. describe:: Source document
 
@@ -41,7 +41,7 @@ ________________
 .. index::  syntax, code chunk, documentation chunk
 
 Pweave syntax
-______________
+_____________
 Pweave uses noweb syntax for defining the code chunks and documentation chunks, just like `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. 
 
 .. describe:: Code chunk
@@ -82,6 +82,12 @@ Pweave currently has the following options for processing the code chunks.
 .. envvar:: caption = ''
 
    A string providing a caption for the figure produced in the code chunk. Can only be used with 'fig = True' option. If a caption is provided the figure will be added in the .rst document with the '.. figure::' directive and as a figure float in Latex.  
+
+.. versionadded:: 0.12
+
+.. envvar:: dtblock = False
+
+   If True the code chunk and the output will be printed as a `doctest block <http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks>`_. This provides sort of "terminal emulation" output, although only statements wrapped in *print* command will be printed. Can also be used in latex documents, where the output will formatted as verbatim and it looks like a doctest block.   
 
 .. versionadded:: 0.12
 
