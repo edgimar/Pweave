@@ -17,7 +17,7 @@ def mfreqz(b,a=1):
 #Make the impulse response function
 @ 
 
-<<dtmode=True>>=
+<<dtblock=True>>=
 n = 11.
 print(n)
 b = repeat(1/n, n)

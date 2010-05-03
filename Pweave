@@ -1,9 +1,11 @@
 #!/usr/bin/python
 
-# Pweave, Literate programming tool for Python imitating Sweave 
-# =============================================================
+# Pweave, Literate programming tool for Python 
+# ============================================
 # 
 # :Author: Matti Pastell <matti.pastell@helsinki.fi
+# :Website: http://mpastell.com
+# Version: 0.12
 
 import sys
 import StringIO
@@ -50,17 +52,17 @@ if format == 'tex':
     ext = 'tex'
 if format == 'rst':
     codestart = '::\n' 
-    codeend = ''
+    codeend = '\n'
     outputstart = '::\n' 
-    outputend = '' 
+    outputend = '\n' 
     codeindent = '  '
     figfmt = '.png'
     ext = 'rst'
 if format == 'sphinx':
     codestart = '::\n' 
-    codeend = ''
+    codeend = '\n'
     outputstart = '::\n' 
-    outputend = '' 
+    outputend = '\n' 
     codeindent = '  '
     figfmt = '.png'
     sphinxtexfigfmt = '.pdf'
@@ -101,10 +103,10 @@ def options(optionstring):
     eval = True
     width = '15 cm'
     caption = False
-    dtmode = False
+    dtblock = False
     optionstring = re.sub(',', ';', optionstring)
     exec(optionstring)
-    return(echo, results, eval, fig, width, caption, dtmode)
+    return(echo, results, eval, fig, width, caption, dtblock)
 
 # Process the whole text file with a loop
 
@@ -119,12 +121,13 @@ for line in lines:
 # The codeblock has ended, less process it
     if line.startswith('@'):
         #Get options 
-        echo, results, eval, fig, width, caption, dtmode = options(optionstring)
+        echo, results, eval, fig, width, caption, dtblock = options(optionstring)
 
         #Output in doctests mode
         #print dtmode
-        if dtmode:
+        if dtblock:
             print
+            if format=="tex": print codestart  
             #Write output to a StringIO object
             tmp = StringIO.StringIO()
             #loop trough the code lines
@@ -133,15 +136,13 @@ for line in lines:
                 exec(x)
                 result = tmp.getvalue().splitlines()
                 if len(result) > 0:
-                    sys.stdout = tmp
-                    print result
-                    sys.stdout = open(outfile, 'a')
+                    tmp.write(result)                   
             result = ''
             tmp.close()
             print codeend
 
         #include source?
-        if echo==True and dtmode==False:
+        if echo==True and dtblock==False:
             #Split the code block and output Rst block
             print codestart
             #For sphinx or rst2htmlhighlight
@@ -151,7 +152,7 @@ for line in lines:
                 print codeindent + x
             print codeend
         #Evaluate the code?
-        if eval==True and dtmode==False:
+        if eval==True and dtblock==False:
             if fig:
                 #A placeholder for figure options
                 #import matplotlib
@@ -164,7 +165,7 @@ for line in lines:
             sys.stdout = open(outfile, 'a')
             result = tmp.getvalue().splitlines() 
             tmp.close()
-            print codeend
+            
         #If we get results they are printed    
         if len(result) > 0:
             if results == "verbatim":
