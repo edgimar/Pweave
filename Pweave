@@ -101,16 +101,15 @@ def options(optionstring):
     eval = True
     width = '15 cm'
     caption = False
+    dtmode = False
     optionstring = re.sub(',', ';', optionstring)
     exec(optionstring)
-    return(echo, results, eval, fig, width, caption)
+    return(echo, results, eval, fig, width, caption, dtmode)
 
 # Process the whole text file with a loop
 
 for line in lines:
-
 # If start of code block, set state as block and get the options
-
     code = re.search('^<<(.|)+>>=$', line.strip())
     if code > 0:
         state = 'code'
@@ -119,10 +118,30 @@ for line in lines:
 
 # The codeblock has ended, less process it
     if line.startswith('@'):
-    #Get options 
-        echo, results, eval, fig, width, caption = options(optionstring)
+        #Get options 
+        echo, results, eval, fig, width, caption, dtmode = options(optionstring)
+
+        #Output in doctests mode
+        #print dtmode
+        if dtmode:
+           #print codestart
+           #Write output to a StringIO object
+            tmp = StringIO.StringIO()
+            #loop trough the code lines
+            for x in block.splitlines():
+                print '>>> ' + x
+                exec(x)
+                result = tmp.getvalue().splitlines()
+                if len(result) > 0:
+                    sys.stdout = tmp
+                    print result
+                    sys.stdout = open(outfile, 'a')
+            result = ''
+            tmp.close()
+            print codeend
+
         #include source?
-        if echo:
+        if echo==True and dtmode==False:
             #Split the code block and output Rst block
             print codestart
             #For sphinx or rst2htmlhighlight
@@ -132,7 +151,7 @@ for line in lines:
                 print codeindent + x
             print codeend
         #Evaluate the code?
-        if eval:
+        if eval==True and dtmode==False:
             if fig:
                 #A placeholder for figure options
                 #import matplotlib
@@ -145,6 +164,7 @@ for line in lines:
             sys.stdout = open(outfile, 'a')
             result = tmp.getvalue().splitlines() 
             tmp.close()
+            print codeend
         #If we get results they are printed    
         if len(result) > 0:
             if results == "verbatim":
