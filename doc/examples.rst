@@ -4,7 +4,7 @@
 reST example
 -------------
 
-Here is a simple example of a Pweave file (`ma.Pnw <_static/ma.Pnw>`_) that uses reST as the documentation format. The file has two code chunks of which second one also produces a figure that is included in the output.
+Here is a simple example of a Pweave file (`ma.Pnw <_static/ma.Pnw>`_) that uses reST as the documentation format. The file demonstrates basic usage of Pweave and how it can easily be used to add dynamic figures and tables. 
 
 .. literalinclude:: ma.Pnw
 
