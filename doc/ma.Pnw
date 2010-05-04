@@ -16,14 +16,14 @@ def mfreqz(b,a=1):
     return(w/max(w), h)
 @ 
 
-**Make the impulse response function and format the code chunk and output as doctest block.**
+**Make the impulse response function and use terminal formatted output (=doctest block.)**
 
-<<dtblock = True>>=
+<<term = True>>=
 n = 11.
+n
 b = repeat(1/n, n)
 print(b)
 @
-
 
 
 **Calculate the frequency response and plot it:**

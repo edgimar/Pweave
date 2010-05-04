@@ -71,7 +71,7 @@ Pweave currently has the following options for processing the code chunks.
 
    Echo the python code in the output document. If False the source code will be hidden.
 
-.. envvar:: eval = True or (False).
+.. envvar:: evaluate = True or (False).
 
    Evaluate the code chunk. If False the chunk won't be executed.
 
@@ -85,9 +85,9 @@ Pweave currently has the following options for processing the code chunks.
 
 .. versionadded:: 0.12
 
-.. envvar:: dtblock = False
+.. envvar:: term = False or (True)
 
-   If True the code chunk and the output will be printed as a `doctest block <http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks>`_. This provides sort of "terminal emulation" output, although only statements wrapped in *print* command will be printed. Can also be used in latex documents, where the output will formatted as verbatim and it looks like a doctest block.   
+   If True the output emulates a terminal session i.e. the code chunk and the output will be printed as a  `doctest block <http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks>`_. Can also be used in latex documents, where the output will formatted as verbatim.
 
 .. versionadded:: 0.12
 

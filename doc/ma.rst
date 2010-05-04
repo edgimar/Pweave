@@ -22,6 +22,8 @@ Pweave Example - Frequency response of a moving average filter
 
 
 >>> n = 11.
+>>> n
+11.0
 >>> b = repeat(1/n, n)
 >>> print(b)
 [ 0.09090909  0.09090909  0.09090909  0.09090909  0.09090909  0.09090909
@@ -29,7 +31,6 @@ Pweave Example - Frequency response of a moving average filter
 
 
  
-
 
 **Calculate the frequency response and plot it:**
 
@@ -43,7 +44,7 @@ Pweave Example - Frequency response of a moving average filter
   show()
 
 
-.. figure:: images/Fig1.png
+.. figure:: images/Fig1.*
    :width: 15 cm
 
    Frequency response of an 11 point moving average filter

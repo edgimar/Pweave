@@ -12,6 +12,6 @@ Documentation
 
    usage.rst
    examples.rst
-
+   emacs.rst
 
 
