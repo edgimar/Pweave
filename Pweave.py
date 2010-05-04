@@ -100,13 +100,13 @@ def options(optionstring):
     echo = True
     results = 'verbatim'
     fig = False
-    eval = True
+    evaluate = True
     width = '15 cm'
     caption = False
-    dtblock = False
+    term = False
     optionstring = re.sub(',', ';', optionstring)
     exec(optionstring)
-    return(echo, results, eval, fig, width, caption, dtblock)
+    return(echo, results, evaluate, fig, width, caption, term)
 
 # Process the whole text file with a loop
 
@@ -121,28 +121,33 @@ for line in lines:
 # The codeblock has ended, less process it
     if line.startswith('@'):
         #Get options 
-        echo, results, eval, fig, width, caption, dtblock = options(optionstring)
+        echo, results, evaluate, fig, width, caption, term = options(optionstring)
 
         #Output in doctests mode
         #print dtmode
-        if dtblock:
+        if term:
             print
             if format=="tex": print codestart  
             #Write output to a StringIO object
-            tmp = StringIO.StringIO()
             #loop trough the code lines
             for x in block.splitlines():
                 print '>>> ' + x
-                exec(x)
-                result = tmp.getvalue().splitlines()
+                tmp = StringIO.StringIO()
+                sys.stdout = tmp
+                try:
+                    print(eval(x))
+                except:
+                    exec(x)
+                result = tmp.getvalue()                
+                tmp.close()
+                sys.stdout = open(outfile, 'a')
                 if len(result) > 0:
-                    tmp.write(result)                   
-            result = ''
-            tmp.close()
+                    print result ,                                   
+            result = ''        
             print codeend
 
         #include source?
-        if echo==True and dtblock==False:
+        if echo==True and term==False:
             #Split the code block and output Rst block
             print codestart
             #For sphinx or rst2htmlhighlight
@@ -152,7 +157,7 @@ for line in lines:
                 print codeindent + x
             print codeend
         #Evaluate the code?
-        if eval==True and dtblock==False:
+        if evaluate==True and term==False:
             if fig:
                 #A placeholder for figure options
                 #import matplotlib
@@ -163,7 +168,7 @@ for line in lines:
             sys.stdout = tmp
             exec(block)
             sys.stdout = open(outfile, 'a')
-            result = tmp.getvalue().splitlines() 
+            result = tmp.getvalue().splitlines()
             tmp.close()
             
         #If we get results they are printed    
