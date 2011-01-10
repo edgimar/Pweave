@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pweave - literate programming with Python</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '#',
+        VERSION:     '0.1',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Pweave - literate programming with Python" href="#" /> 
+  </head>
+  <body>
+
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<a href="#">
+<h1>Pweave - literate programming with Python</h1>
+
+</div>
+
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="#">Home</a>|&nbsp;</li>
+        <li><a href="docs.html">Documentation</a>&raquo;</li>
+
+
+ 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="docs.html">Quick Start</a></h3>
+            <ul><ul>
+<li><a class="reference external" href="http://files.mpastell.com/Pweave.py">Download</a></li>
+<li><a class="reference external" href="docs.html">Documentation</a></li>
+</ul>
+
+</ul>
+
+
+          <div id="searchbox" style="display: none">
+            <h3>Search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome">
+<h1>Welcome<a class="headerlink" href="#welcome" title="Permalink to this headline">¶</a></h1>
+<p>Pweave is a literate programming tool for Python that is developed after <a class="reference external" href="http://www.stat.uni-muenchen.de/~leisch/Sweave/">Sweave</a>. And like Sweave it uses the <a class="reference external" href="http://www.cs.tufts.edu/~nr/noweb/">noweb</a> syntax. Pweave is a single python script that is able to weave a python code between “&lt;&lt;&gt;&gt;=” and “&#64;” blocks and include the results in the document. Pweave supports reStructured text, Sphinx and and Latex markup. Pweave is good for creating dynamic reports and tutorials. The <a href="docs.html">documentation</a> has been created using <a class="reference external" href="http://sphinx.pocoo.org">Sphinx</a> and you also download it as <a class="reference external" href="http://mpastell.com/pweave/_static/Pweave-docs.pdf">pdf</a>.</p>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><strong>Execute python code</strong> in the chunks and <strong>capture input and ouput</strong> to a literate environment using  either <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> or Latex source. Using reST enables conversion of the documents to several formats (html, latex, pdf, odt).</li>
+<li><strong>Use hidden code blocks</strong>, i.e. code is executed, but not printed in the output file.</li>
+<li><strong>Capture matplotlib graphics</strong>.</li>
+</ul>
+</div>
+<div class="section" id="download">
+<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
+<p>Download the latest stable here: <a class="reference external" href="http://files.mpastell.com/Pweave.py">Pweave</a>. You can also checkout the latest code with mercurial using:</p>
+<div class="highlight-python"><pre>hg clone https://pweave.googlecode.com/hg/ pweave</pre>
+</div>
+</div>
+<div class="section" id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
+<p>To install <strong>Pweave</strong> simply copy the &#8220;Pweave&#8221; file to a directory in your path and make it executable e.g. using:</p>
+<div class="highlight-python"><pre>cp Pweave.py /usr/local/bin/Pweave
+chmod a+xr /usr/local/bin/Pweave</pre>
+</div>
+</div>
+<div class="section" id="get-started">
+<h2>Get started</h2>
+<p>Browse the <a class="reference external" href="usage.html">Pweave help</a> or go straight to the <a class="reference external" href="examples.html">example document</a> to get you started!</p>
+</div>
+
+<h2>Release notes</h2>
+<p>
+<h4>0.12</h4>
+<ul>
+  <li>Added terminal mode for output 
+  <li>Figure options: add image caption, making it a figure
+  <li>Small bug fixes to capturing output
+  <li>Documentation: added howto for using <a class="reference external" href="emacs.html">Pweave with Emacs</a> and more complete example
+</ul>
+
+<h4>0.11</h4>
+<ul>
+  <li>Command line option for choosing figure format
+  <li>Figure options: control image width
+  <li>Bug fixes for adding images
+  <li>Pweave now extracts code from the source document
+</ul>
+
+<h4>0.10</h4>
+<ul>
+  <li>Initial release
+</ul>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="#">Home</a>|&nbsp;</li>
+        <li><a href="docs.html">Documentation</a>&raquo;</li>
+
+ 
+      </ul>
+    </div>
+<div class="footer">
+      &copy; Copyright 2010. <a href="http://mpastell.com">Matti Pastell</a>. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.4.
+    </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-6474352-5");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>
