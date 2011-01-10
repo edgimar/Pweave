@@ -3,7 +3,7 @@
 # Pweave, Literate programming tool for Python 
 # ============================================
 # 
-# :Author: Matti Pastell <matti.pastell@helsinki.fi
+# :Author: Matti Pastell <matti.pastell@helsinki.fi>
 # :Website: http://mpastell.com
 # Version: 0.12
 
@@ -53,15 +53,13 @@ def exec_code(code_as_string):
     return result
 
 def run_pweave():
-    # Is matplotlib used? 
-    
+    # Is matplotlib used?
     if options.mplotlib.lower() == 'true':
         import matplotlib
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
     
     # Format specific options for tex or rst
-    
     if format == 'tex':
         codestart = '\\begin{verbatim}' 
         codeend = '\end{verbatim}\n'
@@ -89,7 +87,6 @@ def run_pweave():
         ext = 'rst'
     
     # Override the default fig format with command line option
-    
     if options.figfmt > 0:
         figfmt = '.' + options.figfmt
     
@@ -105,7 +102,6 @@ def run_pweave():
     lines = codefile.readlines()
     
     # Initialize some variables
-    
     state = 'text'
     block = ''
     nfig = 1
@@ -128,8 +124,8 @@ def run_pweave():
             state = 'code'
             optionstring = line[2:len(line.strip())-3]
             line = ''
-    
-    # The codeblock has ended, less process it
+        
+        # If the codeblock has ended, process it
         if line.startswith('@'):
             blockoptions = get_options(optionstring)
             
@@ -138,25 +134,24 @@ def run_pweave():
             if blockoptions['term']:
                 outfile.write('\n')
                 if format=="tex": outfile.write(codestart)  
-                #Write output to a StringIO object
-                #loop trough the code lines
+                
                 for x in block.splitlines():
                     outfile.write('>>> ' + x)
                     result = exec_code(x)
-                    
                     if len(result) > 0:
                         outfile.write(result)
+                
                 result = ''        
                 outfile.write(codeend)
             else:
-                #include source?
+                #include source in output file?
                 if blockoptions['echo']==True:
                     outfile.write(codestart)
                     for x in block.splitlines():
                         outfile.write(codeindent + x + '\n')
                     outfile.write(codeend)
-                
-                #Evaluate the code?
+    
+                #evaluate code and include results in output file?
                 if blockoptions['evaluate']==True:
                     if blockoptions['fig']:
                         #A placeholder for figure options
@@ -189,7 +184,7 @@ def run_pweave():
             if blockoptions['fig']:
                 figname = imgdir + 'Fig' +str(nfig) + figfmt
                 plt.savefig(figname, dpi = 200)
-                #savefig(figname)
+                
                 if format == 'sphinx':
                     figname2 = imgdir + 'Fig' +str(nfig) +  sphinxtexfigfmt
                     plt.savefig(figname2)
@@ -221,19 +216,19 @@ def run_pweave():
                         outfile.write('\includegraphics{'+ figname + '}\n\n')
     
                 nfig = nfig +1
+            
             allcode = allcode + block
             block = ''
             state = 'text'
             line = ''
     
-    # If processing a code block, store the block for processing
-    
+        # If processing a code block, store the block for processing
         if state == 'code':
             block = block + line
-    # If processing text, print it as it is 
-    
+            
+        # If processing text, copy the line to the output file 
         if state == 'text':
-            outfile.write(line) 
+            outfile.write(line)
     
     # Done processing the file, save extracted code and tell the user what has happened
     pyfile.write(allcode)
@@ -256,7 +251,9 @@ if __name__ == "__main__":
     parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
                       help="Do you want to use matplotlib true (default) or false")
     parser.add_option("-g", "--figure-format", dest="figfmt",
-                      help="Figure format for matplolib graphics: Defaults to 'png' for rst and Sphinx html documents and 'pdf' for tex")
+                      help="Figure format for matplolib graphics: "
+                           "Defaults to 'png' for rst and Sphinx html, " 
+                           "and 'pdf' for tex documents ")
     parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
                       help="Directory path for matplolib graphics: Default 'images/'")
     (options, args) = parser.parse_args()
