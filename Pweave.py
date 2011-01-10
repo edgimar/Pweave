@@ -25,7 +25,8 @@ def get_options(optionstring):
     term = False
     optionstring = re.sub(',', ';', optionstring)
     exec(optionstring)
-    return(echo, results, evaluate, fig, width, caption, term)
+    block_options = locals()
+    return block_options
 
 def exec_code(code_as_string):
     """Execute a block of code it's own (persistent) global namespace.
@@ -130,12 +131,11 @@ def run_pweave():
     
     # The codeblock has ended, less process it
         if line.startswith('@'):
-            #Get options 
-            echo, results, evaluate, fig, width, caption, term = get_options(optionstring)
-    
+            blockoptions = get_options(optionstring)
+            
             #Output in doctests mode
             #print dtmode
-            if term:
+            if blockoptions['term']:
                 outfile.write('\n')
                 if format=="tex": outfile.write(codestart)  
                 #Write output to a StringIO object
@@ -150,15 +150,15 @@ def run_pweave():
                 outfile.write(codeend)
             else:
                 #include source?
-                if echo==True:
+                if blockoptions['echo']==True:
                     outfile.write(codestart)
                     for x in block.splitlines():
                         outfile.write(codeindent + x + '\n')
                     outfile.write(codeend)
                 
                 #Evaluate the code?
-                if evaluate==True:
-                    if fig:
+                if blockoptions['evaluate']==True:
+                    if blockoptions['fig']:
                         #A placeholder for figure options
                         #import matplotlib
                         #matplotlib.rcParams['figure.figsize'] = (6, 4.5)
@@ -170,23 +170,23 @@ def run_pweave():
             if len(result) > 0:
                 #TODO: fix -- if results != "verbatim" and !=rst and !=tex, 
                 #      then indent isn't defined and code will break.
-                if results == "verbatim":
+                if blockoptions['results'] == "verbatim":
                     outfile.write(outputstart)
                     indent = codeindent
                 
-                if results == "rst" or results == "tex":
+                if blockoptions['results'] == "rst" or blockoptions['results'] == "tex":
                     indent = ''
                 
                 for x in result:
                     outfile.write(indent + x)
                 outfile.write('\n')
                 
-                if results == "verbatim":
+                if blockoptions['results'] == "verbatim":
                     outfile.write(outputend)
                 result = ''
             
             #Save and include a figure?
-            if fig:
+            if blockoptions['fig']:
                 figname = imgdir + 'Fig' +str(nfig) + figfmt
                 plt.savefig(figname, dpi = 200)
                 #savefig(figname)
@@ -195,27 +195,27 @@ def run_pweave():
                     plt.savefig(figname2)
                 plt.clf()
                 if format == 'rst':
-                    if caption > 0:
+                    if blockoptions['caption'] > 0:
                         #If the image has a caption, use Figure directive
                         outfile.write('.. figure:: ' + figname + '\n')
                         outfile.write('   :width: ' + width + '\n\n')
-                        outfile.write('   ' + caption + '\n\n')
+                        outfile.write('   ' + blockoptions['caption'] + '\n\n')
                     else:
                         outfile.write('.. image:: ' + figname + '\n')
                         outfile.write('   :width: ' + width + '\n\n')
                 if format == 'sphinx':
-                    if caption > 0:
+                    if blockoptions['caption'] > 0:
                         outfile.write('.. figure:: ' + imgdir + 'Fig' + str(nfig)  + '.*' + '\n')
                         outfile.write('   :width: ' + width + '\n\n')
-                        outfile.write('   ' + caption + '\n\n')
+                        outfile.write('   ' + blockoptions['caption'] + '\n\n')
                     else:
                         outfile.write('.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*' + '\n')
                         outfile.write('   :width: ' + width + '\n\n')
                 if format == 'tex':
-                    if caption > 0:
+                    if blockoptions['caption'] > 0:
                         outfile.write(r'\begin{figure}' + '\n')
                         outfile.write('\includegraphics{'+ figname + '}' + '\n')
-                        outfile.write('\caption{' + caption + '}' + '\n')
+                        outfile.write('\caption{' + blockoptions['caption'] + '}' + '\n')
                         outfile.write('\end{figure}' + '\n')
                     else:
                         outfile.write('\includegraphics{'+ figname + '}\n\n')
