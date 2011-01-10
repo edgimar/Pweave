@@ -35,7 +35,8 @@ To install **Pweave** simply copy the "Pweave" file to a directory in your path 
 Get started
 ______________
 
-Browse the `Pweave help <usage.html>`_ to get you started!
+See the following documentation to get started:
+.. Browse the `Pweave help <usage.html>`_ to get you started!
+.. toctree::
 
-
-
+    docs.rst
