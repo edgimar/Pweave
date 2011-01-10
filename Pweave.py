@@ -70,11 +70,16 @@ def run_pweave():
         figfmt = '.' + options.figfmt
     
     # Open the file to be processed and get the output file name
+    basename = infile.split('.')[0]
+    outfile_fname = basename + '.' + ext
+    pyfile_fname = basename + '.' + 'py'
     
     codefile = open(infile, 'r')
-    outfile = infile.split('.')[0] + '.' + ext
-    pyfile = infile.split('.')[0] + '.' + 'py'
-    sys.stdout = open(outfile, 'w')
+    outfile = open(outfile_fname, 'w')
+    pyfile = open(pyfile_fname, 'w')
+    
+    sys.stdout = outfile
+    
     lines = codefile.readlines()
     
     # Initialize some variables
@@ -124,7 +129,7 @@ def run_pweave():
                         exec(x, exec_namespace)
                     result = tmp.getvalue()                
                     tmp.close()
-                    sys.stdout = open(outfile, 'a')
+                    sys.stdout = outfile
                     if len(result) > 0:
                         print result ,                                   
                 result = ''        
@@ -151,7 +156,7 @@ def run_pweave():
                     tmp = StringIO.StringIO()
                     sys.stdout = tmp
                     exec(block, exec_namespace)
-                    sys.stdout = open(outfile, 'a')
+                    sys.stdout = outfile
                     result = tmp.getvalue().splitlines()
                     tmp.close()
             
@@ -219,14 +224,13 @@ def run_pweave():
             print line, 
     
     # Done processing the file, save extracted code and tell the user what has happened
-    extfile = open(pyfile ,'w')
-    extfile.write(allcode)
-    extfile.close()
+    pyfile.write(allcode)
+    pyfile.close()
     
     codefile.close()
     sys.stdout = sys.__stdout__
-    print 'Output written to', outfile
-    print 'Code extracted to', pyfile
+    print 'Output written to', outfile_fname
+    print 'Code extracted to', pyfile_fname
 
 
 if __name__ == "__main__":
