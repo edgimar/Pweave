@@ -118,11 +118,12 @@ def run_pweave():
     # Process the whole text file with a loop
     
     for line in lines:
-    # If start of code block, set state as block and get the options
-        code = re.search('^<<(.|)+>>=$', line.strip())
-        if code > 0:
+        code = re.search('^<<(.*)>>=$', line.strip())
+        
+        # if at the start of a code block
+        if code is not None:
             state = 'code'
-            optionstring = line[2:len(line.strip())-3]
+            optionstring = code.group(1)
             line = ''
         
         # If the codeblock has ended, process it
