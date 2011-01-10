@@ -27,6 +27,29 @@ def get_options(optionstring):
     exec(optionstring)
     return(echo, results, evaluate, fig, width, caption, term)
 
+def exec_code(code_as_string):
+    """Execute a block of code it's own (persistent) global namespace.
+    
+    *code_as_string* is executed as a chunk of python code within a
+    namespace separate from that of this module.  The output produced
+    by this code is returned.
+    
+    """
+    tmp = StringIO.StringIO()
+    sys.stdout = tmp
+    
+    # execute code, capturing stdout to tmp
+    try:
+        print(eval(code_as_string))
+    except:
+        exec(code_as_string, exec_namespace)
+    result = tmp.getvalue()
+    
+    # stop capturing and restore normal stdout
+    sys.stdout = sys.__stdout__
+    tmp.close()
+    
+    return result
 
 def run_pweave():
     # Is matplotlib used? 
@@ -47,18 +70,18 @@ def run_pweave():
         figfmt = '.pdf'
         ext = 'tex'
     if format == 'rst':
-        codestart = '::\n' 
-        codeend = '\n'
-        outputstart = '::\n' 
-        outputend = '\n' 
+        codestart = '::\n\n' 
+        codeend = '\n\n'
+        outputstart = '::\n\n' 
+        outputend = '\n\n' 
         codeindent = '  '
         figfmt = '.png'
         ext = 'rst'
     if format == 'sphinx':
-        codestart = '::\n' 
-        codeend = '\n'
-        outputstart = '::\n' 
-        outputend = '\n' 
+        codestart = '::\n\n' 
+        codeend = '\n\n'
+        outputstart = '::\n\n' 
+        outputend = '\n\n' 
         codeindent = '  '
         figfmt = '.png'
         sphinxtexfigfmt = '.pdf'
@@ -77,8 +100,6 @@ def run_pweave():
     codefile = open(infile, 'r')
     outfile = open(outfile_fname, 'w')
     pyfile = open(pyfile_fname, 'w')
-    
-    sys.stdout = outfile
     
     lines = codefile.readlines()
     
@@ -115,36 +136,26 @@ def run_pweave():
             #Output in doctests mode
             #print dtmode
             if term:
-                print
-                if format=="tex": print codestart  
+                outfile.write('\n')
+                if format=="tex": outfile.write(codestart)  
                 #Write output to a StringIO object
                 #loop trough the code lines
                 for x in block.splitlines():
-                    print '>>> ' + x
-                    tmp = StringIO.StringIO()
-                    sys.stdout = tmp
-                    try:
-                        print(eval(x))
-                    except:
-                        exec(x, exec_namespace)
-                    result = tmp.getvalue()                
-                    tmp.close()
-                    sys.stdout = outfile
+                    outfile.write('>>> ' + x)
+                    result = exec_code(x)
+                    
                     if len(result) > 0:
-                        print result ,                                   
+                        outfile.write(result)
                 result = ''        
-                print codeend
+                outfile.write(codeend)
             else:
                 #include source?
                 if echo==True:
-                    #Split the code block and output Rst block
-                    print codestart
-                    #For sphinx or rst2htmlhighlight
-                    #print '.. code-block:: python', '\n'
-                    inblock = block.splitlines()
-                    for x in inblock:
-                        print codeindent + x
-                    print codeend
+                    outfile.write(codestart)
+                    for x in block.splitlines():
+                        outfile.write(codeindent + x + '\n')
+                    outfile.write(codeend)
+                
                 #Evaluate the code?
                 if evaluate==True:
                     if fig:
@@ -152,27 +163,28 @@ def run_pweave():
                         #import matplotlib
                         #matplotlib.rcParams['figure.figsize'] = (6, 4.5)
                         pass
-                #Write output to a StringIO object
-                    tmp = StringIO.StringIO()
-                    sys.stdout = tmp
-                    exec(block, exec_namespace)
-                    sys.stdout = outfile
-                    result = tmp.getvalue().splitlines()
-                    tmp.close()
+                    
+                    result = exec_code(block).splitlines()
             
             #If we get results they are printed
             if len(result) > 0:
+                #TODO: fix -- if results != "verbatim" and !=rst and !=tex, 
+                #      then indent isn't defined and code will break.
                 if results == "verbatim":
-                    print outputstart
+                    outfile.write(outputstart)
                     indent = codeindent
+                
                 if results == "rst" or results == "tex":
                     indent = ''
+                
                 for x in result:
-                    print indent + x
-                print
+                    outfile.write(indent + x)
+                outfile.write('\n')
+                
                 if results == "verbatim":
-                    print outputend
+                    outfile.write(outputend)
                 result = ''
+            
             #Save and include a figure?
             if fig:
                 figname = imgdir + 'Fig' +str(nfig) + figfmt
@@ -185,28 +197,28 @@ def run_pweave():
                 if format == 'rst':
                     if caption > 0:
                         #If the image has a caption, use Figure directive
-                        print '.. figure:: ' + figname
-                        print '   :width: ' + width + '\n'
-                        print '   ' + caption + '\n'   
+                        outfile.write('.. figure:: ' + figname + '\n')
+                        outfile.write('   :width: ' + width + '\n\n')
+                        outfile.write('   ' + caption + '\n\n')
                     else:
-                        print '.. image:: ' + figname
-                        print '   :width: ' + width + '\n'
+                        outfile.write('.. image:: ' + figname + '\n')
+                        outfile.write('   :width: ' + width + '\n\n')
                 if format == 'sphinx':
                     if caption > 0:
-                        print '.. figure:: ' + imgdir + 'Fig' + str(nfig)  + '.*'
-                        print '   :width: ' + width + '\n'
-                        print '   ' + caption + '\n'   
+                        outfile.write('.. figure:: ' + imgdir + 'Fig' + str(nfig)  + '.*' + '\n')
+                        outfile.write('   :width: ' + width + '\n\n')
+                        outfile.write('   ' + caption + '\n\n')
                     else:
-                        print '.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*'
-                        print '   :width: ' + width + '\n'
+                        outfile.write('.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*' + '\n')
+                        outfile.write('   :width: ' + width + '\n\n')
                 if format == 'tex':
                     if caption > 0:
-                        print r'\begin{figure}'
-                        print '\includegraphics{'+ figname + '}'
-                        print '\caption{' + caption + '}'
-                        print '\end{figure}'                 
+                        outfile.write(r'\begin{figure}' + '\n')
+                        outfile.write('\includegraphics{'+ figname + '}' + '\n')
+                        outfile.write('\caption{' + caption + '}' + '\n')
+                        outfile.write('\end{figure}' + '\n')
                     else:
-                        print '\includegraphics{'+ figname + '}\n'
+                        outfile.write('\includegraphics{'+ figname + '}\n\n')
     
                 nfig = nfig +1
             allcode = allcode + block
@@ -221,14 +233,13 @@ def run_pweave():
     # If processing text, print it as it is 
     
         if state == 'text':
-            print line, 
+            outfile.write(line) 
     
     # Done processing the file, save extracted code and tell the user what has happened
     pyfile.write(allcode)
     pyfile.close()
-    
     codefile.close()
-    sys.stdout = sys.__stdout__
+    
     print 'Output written to', outfile_fname
     print 'Code extracted to', pyfile_fname
 
