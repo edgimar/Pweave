@@ -14,7 +14,202 @@ from optparse import OptionParser
 import os
 exec_namespace = {} # global (and local) namespace for exec()'ed code
 
+class CodeProcessor(object):
+    "Base Class for code-processor classes, used for processing code blocks"
+    def __init__(self, execution_namespace=None):
+        """
+        *codeblock_options* -- a dictionary containing options specified for
+                               the code-block.
+        *execution_namespace* -- a namespace dictionary used for executing
+                                 the code.
+        """
+        if execution_namespace is None:
+            # by default, use the namespace defined globally in this module
+            execution_namespace = exec_namespace
+        
+        self.execution_namespace = execution_namespace
+        self.default_options = {}
+    
+    def name(self):
+        "Return a string representing the name of this code-processor"
+        raise NotImplementedError
+    
+    def set_default_options(self, codeblock_options):
+        self.default_options = codeblock_options
+    
+    def process_code(self, codeblock, codeblock_options=None):
+        """Process a code-block; return text to include in output documents.
+        
+        This method must do something with the (possibly multi-line) string
+        *codeblock*, and return two strings -- one to be included in the
+        'output' file (e.g. a LaTeX file), and one to be included in the
+        generated python file.
+        
+        """
+        raise NotImplementedError
+        
+        if codeblock_options is None:
+            codeblock_options = self.default_options
+        
+        # ... build document_text and code_text strings, etc.  ...
+        
+        return (document_text, code_text)
+
+    def exec_code(self, code_as_string):
+        """Execute a block of code it's own (persistent) global namespace.
+        
+        *code_as_string* is executed as a chunk of python code within a
+        namespace separate from that of this module.  The output produced
+        by this code is returned.
+        
+        """
+        tmp = StringIO.StringIO()
+        sys.stdout = tmp
+        
+        # execute code, capturing stdout to tmp
+        try:
+            print(eval(code_as_string))
+        except:
+            exec(code_as_string, exec_namespace)
+        result = tmp.getvalue()
+        
+        # stop capturing and restore normal stdout
+        sys.stdout = sys.__stdout__
+        tmp.close()
+        
+        return result
+
+class DefaultProcessor(CodeProcessor):
+    def __init__(self):
+        super(DefaultProcessor, self).__init__()
+        self.nfig = 1
+    
+    def name(self):
+        "Return a string representing the name of this code-processor"
+        return 'default'
+
+    def process_code(self, codeblock, codeblock_options=None):
+        outbuf = StringIO.StringIO() # temporary file obj for storing text
+        if codeblock_options is None:
+            codeblock_options = self.default_options
+        blockoptions = codeblock_options
+        
+        # Format specific options for tex or rst
+        if options.format == 'tex':
+            codestart = '\\begin{verbatim}\n' 
+            codeend = '\\end{verbatim}\n'
+            outputstart = '\\begin{verbatim}\n'
+            outputend = '\\end{verbatim}\n' 
+            codeindent = ''
+        elif options.format == 'rst':
+            codestart = '::\n\n' 
+            codeend = '\n\n'
+            outputstart = '::\n\n' 
+            outputend = '\n\n' 
+            codeindent = '  '
+        elif options.format == 'sphinx':
+            codestart = '::\n\n' 
+            codeend = '\n\n'
+            outputstart = '::\n\n' 
+            outputend = '\n\n' 
+            codeindent = '  '
+        
+        #Output in doctests mode
+        #print dtmode
+        if blockoptions['term']:
+            outbuf.write('\n')
+            if options.format=="tex": outbuf.write(codestart)  
+            
+            for x in codeblock.splitlines():
+                outbuf.write('>>> ' + x + '\n')
+                result = self.exec_code(x)
+                if len(result) > 0:
+                    outbuf.write(result)
+            
+            result = ''
+            outbuf.write(codeend)
+        else:
+            #include source in output file?
+            if blockoptions['echo']==True:
+                outbuf.write(codestart)
+                for x in codeblock.splitlines():
+                    outbuf.write(codeindent + x + '\n')
+                outbuf.write(codeend)
+
+            #evaluate code and include results in output file?
+            if blockoptions['evaluate']==True:
+                if blockoptions['fig']:
+                    #A placeholder for figure options
+                    #import matplotlib
+                    #matplotlib.rcParams['figure.figsize'] = (6, 4.5)
+                    pass
+                
+                result = self.exec_code(codeblock).splitlines()
+        
+        #If we get results they are printed
+        if len(result) > 0:
+            #TODO: fix -- if results != "verbatim" and !=rst and !=tex, 
+            #      then indent isn't defined and code will break.
+            if blockoptions['results'] == "verbatim":
+                outbuf.write(outputstart)
+                indent = codeindent
+            
+            if blockoptions['results'] == "rst" or blockoptions['results'] == "tex":
+                indent = ''
+            
+            for x in result:
+                outbuf.write(indent + x)
+            outbuf.write('\n')
+            
+            if blockoptions['results'] == "verbatim":
+                outbuf.write(outputend)
+            result = ''
+        
+        #Save and include a figure?
+        if blockoptions['fig']:
+            figname = options.figdir + 'Fig' +str(self.nfig) + options.figfmt
+            plt.savefig(figname, dpi = 200)
+            
+            if options.format == 'sphinx':
+                figname2 = options.figdir + 'Fig' +str(self.nfig) +  options.sphinxtexfigfmt
+                plt.savefig(figname2)
+            plt.clf()
+            if options.format == 'rst':
+                if blockoptions['caption'] > 0:
+                    #If the image has a caption, use Figure directive
+                    outbuf.write('.. figure:: ' + figname + '\n')
+                    outbuf.write('   :width: ' + width + '\n\n')
+                    outbuf.write('   ' + blockoptions['caption'] + '\n\n')
+                else:
+                    outbuf.write('.. image:: ' + figname + '\n')
+                    outbuf.write('   :width: ' + width + '\n\n')
+            if options.format == 'sphinx':
+                if blockoptions['caption'] > 0:
+                    outbuf.write('.. figure:: ' + options.figdir + 'Fig' + str(self.nfig)  + '.*\n')
+                    outbuf.write('   :width: ' + width + '\n\n')
+                    outbuf.write('   ' + blockoptions['caption'] + '\n\n')
+                else:
+                    outbuf.write('.. image:: ' + options.figdir + 'Fig' + str(self.nfig)  + '.*\n')
+                    outbuf.write('   :width: ' + width + '\n\n')
+            if options.format == 'tex':
+                if blockoptions['caption'] > 0:
+                    outbuf.write('\\begin{figure}\n')
+                    outbuf.write('\\includegraphics{'+ figname + '}\n')
+                    outbuf.write('\\caption{' + blockoptions['caption'] + '}\n')
+                    outbuf.write('\\end{figure}\n')
+                else:
+                    outbuf.write('\\includegraphics{'+ figname + '}\n\n')
+
+            self.nfig += 1
+        
+        document_text = outbuf.getvalue()
+        outbuf.close()
+        
+        return (document_text, codeblock) # document_text, code_text
+
 # A function for parsing options
+# TODO: parse in form <<processor_name, arg1=val1, arg2=val2, ...>>= where
+#       processor_name is optional and defaults to 'default'
 def get_options(optionstring):
     echo = True
     results = 'verbatim'
@@ -28,67 +223,34 @@ def get_options(optionstring):
     block_options = locals()
     return block_options
 
-def exec_code(code_as_string):
-    """Execute a block of code it's own (persistent) global namespace.
-    
-    *code_as_string* is executed as a chunk of python code within a
-    namespace separate from that of this module.  The output produced
-    by this code is returned.
-    
-    """
-    tmp = StringIO.StringIO()
-    sys.stdout = tmp
-    
-    # execute code, capturing stdout to tmp
-    try:
-        print(eval(code_as_string))
-    except:
-        exec(code_as_string, exec_namespace)
-    result = tmp.getvalue()
-    
-    # stop capturing and restore normal stdout
-    sys.stdout = sys.__stdout__
-    tmp.close()
-    
-    return result
 
 def run_pweave():
+    codeprocessor = DefaultProcessor()
+    
     # Is matplotlib used?
     if options.mplotlib.lower() == 'true':
         import matplotlib
         matplotlib.use('Agg')
+        global plt
         import matplotlib.pyplot as plt
     
     # Format specific options for tex or rst
-    if format == 'tex':
-        codestart = '\\begin{verbatim}\n' 
-        codeend = '\\end{verbatim}\n'
-        outputstart = '\\begin{verbatim}\n'
-        outputend = '\\end{verbatim}\n' 
-        codeindent = ''
+    if options.format == 'tex':
         figfmt = '.pdf'
         ext = 'tex'
-    if format == 'rst':
-        codestart = '::\n\n' 
-        codeend = '\n\n'
-        outputstart = '::\n\n' 
-        outputend = '\n\n' 
-        codeindent = '  '
+    elif options.format == 'rst':
         figfmt = '.png'
         ext = 'rst'
-    if format == 'sphinx':
-        codestart = '::\n\n' 
-        codeend = '\n\n'
-        outputstart = '::\n\n' 
-        outputend = '\n\n' 
-        codeindent = '  '
+    elif options.format == 'sphinx':
         figfmt = '.png'
-        sphinxtexfigfmt = '.pdf'
+        options.sphinxtexfigfmt = '.pdf'
         ext = 'rst'
     
     # Override the default fig format with command line option
     if options.figfmt > 0:
-        figfmt = '.' + options.figfmt
+        options.figfmt = '.' + options.figfmt
+    else:
+        options.figfmt = figfmt
     
     # Open the file to be processed and get the output file name
     basename = infile.split('.')[0]
@@ -104,13 +266,10 @@ def run_pweave():
     # Initialize some variables
     state = 'text'
     block = ''
-    nfig = 1
-    allcode = ''
-    imgdir = options.figdir
     
     # Create figure directory if it doesn't exist
-    if os.path.isdir(imgdir) == False:
-        os.mkdir(imgdir)
+    if os.path.isdir(options.figdir) == False:
+        os.mkdir(options.figdir)
     
     
 
@@ -129,95 +288,10 @@ def run_pweave():
         if line.startswith('@'):
             blockoptions = get_options(optionstring)
             
-            #Output in doctests mode
-            #print dtmode
-            if blockoptions['term']:
-                outfile.write('\n')
-                if format=="tex": outfile.write(codestart)  
-                
-                for x in block.splitlines():
-                    outfile.write('>>> ' + x + '\n')
-                    result = exec_code(x)
-                    if len(result) > 0:
-                        outfile.write(result)
-                
-                result = ''
-                outfile.write(codeend)
-            else:
-                #include source in output file?
-                if blockoptions['echo']==True:
-                    outfile.write(codestart)
-                    for x in block.splitlines():
-                        outfile.write(codeindent + x + '\n')
-                    outfile.write(codeend)
-    
-                #evaluate code and include results in output file?
-                if blockoptions['evaluate']==True:
-                    if blockoptions['fig']:
-                        #A placeholder for figure options
-                        #import matplotlib
-                        #matplotlib.rcParams['figure.figsize'] = (6, 4.5)
-                        pass
-                    
-                    result = exec_code(block).splitlines()
+            document_text, code_text = codeprocessor.process_code(block, blockoptions)
             
-            #If we get results they are printed
-            if len(result) > 0:
-                #TODO: fix -- if results != "verbatim" and !=rst and !=tex, 
-                #      then indent isn't defined and code will break.
-                if blockoptions['results'] == "verbatim":
-                    outfile.write(outputstart)
-                    indent = codeindent
-                
-                if blockoptions['results'] == "rst" or blockoptions['results'] == "tex":
-                    indent = ''
-                
-                for x in result:
-                    outfile.write(indent + x)
-                outfile.write('\n')
-                
-                if blockoptions['results'] == "verbatim":
-                    outfile.write(outputend)
-                result = ''
-            
-            #Save and include a figure?
-            if blockoptions['fig']:
-                figname = imgdir + 'Fig' +str(nfig) + figfmt
-                plt.savefig(figname, dpi = 200)
-                
-                if format == 'sphinx':
-                    figname2 = imgdir + 'Fig' +str(nfig) +  sphinxtexfigfmt
-                    plt.savefig(figname2)
-                plt.clf()
-                if format == 'rst':
-                    if blockoptions['caption'] > 0:
-                        #If the image has a caption, use Figure directive
-                        outfile.write('.. figure:: ' + figname + '\n')
-                        outfile.write('   :width: ' + width + '\n\n')
-                        outfile.write('   ' + blockoptions['caption'] + '\n\n')
-                    else:
-                        outfile.write('.. image:: ' + figname + '\n')
-                        outfile.write('   :width: ' + width + '\n\n')
-                if format == 'sphinx':
-                    if blockoptions['caption'] > 0:
-                        outfile.write('.. figure:: ' + imgdir + 'Fig' + str(nfig)  + '.*\n')
-                        outfile.write('   :width: ' + width + '\n\n')
-                        outfile.write('   ' + blockoptions['caption'] + '\n\n')
-                    else:
-                        outfile.write('.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*\n')
-                        outfile.write('   :width: ' + width + '\n\n')
-                if format == 'tex':
-                    if blockoptions['caption'] > 0:
-                        outfile.write('\\begin{figure}\n')
-                        outfile.write('\\includegraphics{'+ figname + '}\n')
-                        outfile.write('\\caption{' + blockoptions['caption'] + '}\n')
-                        outfile.write('\\end{figure}\n')
-                    else:
-                        outfile.write('\\includegraphics{'+ figname + '}\n\n')
-    
-                nfig = nfig +1
-            
-            allcode = allcode + block
+            pyfile.write(code_text)
+            outfile.write(document_text)
             block = ''
             state = 'text'
             line = ''
@@ -231,7 +305,6 @@ def run_pweave():
             outfile.write(line)
     
     # Done processing the file, save extracted code and tell the user what has happened
-    pyfile.write(allcode)
     pyfile.close()
     codefile.close()
     
@@ -257,7 +330,6 @@ if __name__ == "__main__":
     parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
                       help="Directory path for matplolib graphics: Default 'images/'")
     (options, args) = parser.parse_args()
-    format = options.format
     infile = args[0]
     run_pweave()
 
