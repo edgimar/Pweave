@@ -116,7 +116,7 @@ class DefaultProcessor(CodeProcessor):
         
         #Output in doctests mode
         #print dtmode
-        if blockoptions['term']:
+        if blockoptions['term'].lower() == 'true':
             outbuf.write('\n')
             if options.format=="tex": outbuf.write(codestart)  
             
@@ -130,15 +130,15 @@ class DefaultProcessor(CodeProcessor):
             outbuf.write(codeend)
         else:
             #include source in output file?
-            if blockoptions['echo']==True:
+            if blockoptions['echo'].lower() == 'true':
                 outbuf.write(codestart)
                 for x in codeblock.splitlines():
                     outbuf.write(codeindent + x + '\n')
                 outbuf.write(codeend)
 
             #evaluate code and include results in output file?
-            if blockoptions['evaluate']==True:
-                if blockoptions['fig']:
+            if blockoptions['evaluate'].lower() == 'true':
+                if blockoptions['fig'].lower() == 'true':
                     #A placeholder for figure options
                     #import matplotlib
                     #matplotlib.rcParams['figure.figsize'] = (6, 4.5)
@@ -166,7 +166,7 @@ class DefaultProcessor(CodeProcessor):
             result = ''
         
         #Save and include a figure?
-        if blockoptions['fig']:
+        if blockoptions['fig'].lower() == 'true':
             figname = options.figdir + 'Fig' +str(self.nfig) + options.figfmt
             plt.savefig(figname, dpi = 200)
             
@@ -175,24 +175,24 @@ class DefaultProcessor(CodeProcessor):
                 plt.savefig(figname2)
             plt.clf()
             if options.format == 'rst':
-                if blockoptions['caption'] > 0:
+                if blockoptions['caption']:
                     #If the image has a caption, use Figure directive
                     outbuf.write('.. figure:: ' + figname + '\n')
-                    outbuf.write('   :width: ' + width + '\n\n')
+                    outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
                     outbuf.write('   ' + blockoptions['caption'] + '\n\n')
                 else:
                     outbuf.write('.. image:: ' + figname + '\n')
-                    outbuf.write('   :width: ' + width + '\n\n')
+                    outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
             if options.format == 'sphinx':
-                if blockoptions['caption'] > 0:
+                if blockoptions['caption']:
                     outbuf.write('.. figure:: ' + options.figdir + 'Fig' + str(self.nfig)  + '.*\n')
-                    outbuf.write('   :width: ' + width + '\n\n')
+                    outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
                     outbuf.write('   ' + blockoptions['caption'] + '\n\n')
                 else:
                     outbuf.write('.. image:: ' + options.figdir + 'Fig' + str(self.nfig)  + '.*\n')
-                    outbuf.write('   :width: ' + width + '\n\n')
+                    outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
             if options.format == 'tex':
-                if blockoptions['caption'] > 0:
+                if blockoptions['caption']:
                     outbuf.write('\\begin{figure}\n')
                     outbuf.write('\\includegraphics{'+ figname + '}\n')
                     outbuf.write('\\caption{' + blockoptions['caption'] + '}\n')
@@ -207,20 +207,61 @@ class DefaultProcessor(CodeProcessor):
         
         return (document_text, codeblock) # document_text, code_text
 
+default_block_options = {
+                           "echo": 'True',
+                           "results": 'verbatim',
+                           "fig": 'False',
+                           "evaluate": 'True',
+                           "width": '15 cm',
+                           "caption": '',
+                           "term": 'False',
+                           "__pweave_processor_name": "default"
+                        }
+
 # A function for parsing options
-# TODO: parse in form <<processor_name, arg1=val1, arg2=val2, ...>>= where
-#       processor_name is optional and defaults to 'default'
 def get_options(optionstring):
-    echo = True
-    results = 'verbatim'
-    fig = False
-    evaluate = True
-    width = '15 cm'
-    caption = False
-    term = False
-    optionstring = re.sub(',', ';', optionstring)
-    exec(optionstring)
-    block_options = locals()
+    """Parse option string into dictionary.
+    
+    The string must be in one of the two following forms:
+    
+    processor-name, key1=val1, key2=val2, ...
+    
+                or
+                
+    key1=val1, key2=val2, ...
+    
+    The string processor-name is optional, and if specified, will end up being
+    placed in the dictionary using the "__pweave_processor_name" key.
+    
+    All keys, values, and the processor-name may contain spaces and commas if
+    surrounded by "" (double-quotes).  NOTE: single quotes will not work for
+    this -- they may be used, but they will be treated as ordinary characters,
+    and do not by themselves allow spaces / commas.
+    
+    The dictionary containing the parsed key/value pairs is returned.
+    
+    """
+    block_options = {}
+    block_options.update(default_block_options)
+    
+    if len(optionstring) > 0:
+        # match against a first element in the list which isn't an x=y pair
+        m = re.match('([^,"=]*),([^=].*)', optionstring)
+        if m is not None:
+            key="__pweave_processor_name"
+            val=m.group(1).strip(" \t").strip('"')
+            block_options[key] = val
+            optionstring = m.groups()[-1]
+    
+    while len(optionstring) > 0:
+        # match an x=y pair as one group, and whatever follows as another group
+        m = re.match('([^=,]*)=("[^"]*"|[^,"]*),?(.*)', optionstring)
+        optionstring = m.groups()[-1] # cut out matched front-part...
+        if m is not None:
+            key=m.group(1).strip(" \t").strip('"')
+            val=m.group(2).strip(" \t").strip('"')
+            block_options[key] = val
+    
     return block_options
 
 
@@ -270,9 +311,6 @@ def run_pweave():
     # Create figure directory if it doesn't exist
     if os.path.isdir(options.figdir) == False:
         os.mkdir(options.figdir)
-    
-    
-
     
     # Process the whole text file with a loop
     for line in lines:
