@@ -28,12 +28,12 @@ print(b)
 
 **Calculate the frequency response and plot it:**
 
-<<fig = True, caption = 'Frequency response of an 11 point moving average filter'>>=
+<<fig = True, caption = "Frequency response of an 11 point moving average filter.">>=
 w, h = mfreqz(b)
 #Plot the function
 plot(w,h,'k')
 ylabel('Amplitude')
-xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+xlabel(r'Normalized Frequency (x$\pi$ rad/sample)')
 show()
 @ 
 
@@ -43,7 +43,7 @@ show()
 .. csv-table::
    :header: "Amplitude", "Frequency"
 
-<<results = 'rst', echo = False>>=
+<<results = "rst", echo = False>>=
 print 
 for i in range(10):
     print '  ' , round(h[i],2) , ',' , round(w[i],2)

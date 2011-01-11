@@ -17,8 +17,8 @@ Pweave Example - Frequency response of a moving average filter
       return(w/max(w), h)
 
 
- 
-**Make the impulse response function and format the code chunk and output as doctest block.**
+
+**Make the impulse response function and use terminal formatted output (=doctest block.)**
 
 
 >>> n = 11.
@@ -30,7 +30,7 @@ Pweave Example - Frequency response of a moving average filter
   0.09090909  0.09090909  0.09090909  0.09090909  0.09090909]
 
 
- 
+
 
 **Calculate the frequency response and plot it:**
 
@@ -40,16 +40,16 @@ Pweave Example - Frequency response of a moving average filter
   #Plot the function
   plot(w,h,'k')
   ylabel('Amplitude')
-  xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+  xlabel(r'Normalized Frequency (x$\pi$ rad/sample)')
   show()
 
 
 .. figure:: images/Fig1.*
    :width: 15 cm
 
-   Frequency response of an 11 point moving average filter
+   Frequency response of an 11 point moving average filter.
 
- 
+
 
 **The first 10 values of the frequency response (w,h) as a table, notice that the code is hidden in the output document.**
 

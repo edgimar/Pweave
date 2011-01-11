@@ -68,7 +68,7 @@ class CodeProcessor(object):
         
         # execute code, capturing stdout to tmp
         try:
-            print(eval(code_as_string))
+            print(eval(code_as_string, exec_namespace))
         except:
             exec(code_as_string, exec_namespace)
         result = tmp.getvalue()
@@ -148,17 +148,15 @@ class DefaultProcessor(CodeProcessor):
         
         #If we get results they are printed
         if len(result) > 0:
-            #TODO: fix -- if results != "verbatim" and !=rst and !=tex, 
-            #      then indent isn't defined and code will break.
+            indent = codeindent # default indentation
+            
             if blockoptions['results'] == "verbatim":
                 outbuf.write(outputstart)
-                indent = codeindent
-            
-            if blockoptions['results'] == "rst" or blockoptions['results'] == "tex":
+            elif blockoptions['results'] in ['rst', 'tex']:
                 indent = ''
             
             for x in result:
-                outbuf.write(indent + x)
+                outbuf.write(indent + x + '\n')
             outbuf.write('\n')
             
             if blockoptions['results'] == "verbatim":
@@ -255,12 +253,15 @@ def get_options(optionstring):
     
     while len(optionstring) > 0:
         # match an x=y pair as one group, and whatever follows as another group
-        m = re.match('([^=,]*)=("[^"]*"|[^,"]*),?(.*)', optionstring)
-        optionstring = m.groups()[-1] # cut out matched front-part...
+        m = re.match('([^=,]*)=\s*("[^"]*"|[^,"]*),?(.*)', optionstring)
         if m is not None:
             key=m.group(1).strip(" \t").strip('"')
             val=m.group(2).strip(" \t").strip('"')
             block_options[key] = val
+            optionstring = m.groups()[-1] # cut out matched front-part...
+        else:
+            print "WARNING: unparseable block-options: ", optionstring
+            break
     
     return block_options
 
