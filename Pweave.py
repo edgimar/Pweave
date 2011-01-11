@@ -12,6 +12,10 @@ import StringIO
 import re
 from optparse import OptionParser
 import os
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 exec_namespace = {} # global (and local) namespace for exec()'ed code
 
 class CodeProcessor(object):
@@ -78,10 +82,11 @@ class CodeProcessor(object):
         tmp.close()
         
         return result
+    
 
 class DefaultProcessor(CodeProcessor):
-    def __init__(self):
-        super(DefaultProcessor, self).__init__()
+    def __init__(self, execution_namespace=None):
+        super(DefaultProcessor, self).__init__(execution_namespace)
         self.nfig = 1
     
     def name(self):
@@ -242,6 +247,7 @@ def get_options(optionstring):
     block_options = {}
     block_options.update(default_block_options)
     
+    # TODO: parsing appears to fail when processor-name is the only 'option'
     if len(optionstring) > 0:
         # match against a first element in the list which isn't an x=y pair
         m = re.match('([^,"=]*),([^=].*)', optionstring)
@@ -265,16 +271,52 @@ def get_options(optionstring):
     
     return block_options
 
+# global dict mapping names to processor class instances
+processors = {}
+
+def load_processor_plugins():
+    "Import and instantiate all processor plugin-module classes."
+    global processors
+    # add the plugin paths if they're not already in the path
+    plugin_paths = [ os.path.join(os.path.abspath('.'), 'pweave_plugins'),
+                     os.path.join(os.path.expanduser('~'), '.pweave_plugins') ]
+    
+    files = []
+    for p in reversed(plugin_paths):
+        if not p in sys.path:
+            sys.path.insert(0, p)
+        # make list of modules we find in the plugin path
+        try:
+            files.extend(os.listdir(p))
+        except:
+            pass
+    
+    pyfile_regex = re.compile(".*\.py$", re.IGNORECASE) # create regular expression to match strings ending in '.py'
+    pyfiles = filter(pyfile_regex.search, files) # remove files which don't end with '.py'
+    plugins = [filename[:-3] for filename in pyfiles] # strip off '.py' on end of filenames
+    
+    # import the modules which we found in the plugin path
+    plugin_modules = {}
+    for plugin in plugins:
+        temp_module = __import__(plugin)
+        plugin_modules[plugin] = temp_module
+    
+    # create list of plugin class objects which have been loaded
+    loaded_plugin_classes = []
+    for module in plugin_modules.values():
+        # list of classes which are based on CodeProcessor
+        class_list = module.CodeProcessor.__subclasses__() 
+        loaded_plugin_classes.extend(class_list) # append list entries
+    
+    # create instances of each plugin class object,
+    # and store them in the global instance dictionary *processors*
+    for classObject in loaded_plugin_classes:
+        classInstance = classObject()
+        cls_name = classInstance.name()
+        processors[cls_name] = classInstance
 
 def run_pweave():
-    codeprocessor = DefaultProcessor()
-    
-    # Is matplotlib used?
-    if options.mplotlib.lower() == 'true':
-        import matplotlib
-        matplotlib.use('Agg')
-        global plt
-        import matplotlib.pyplot as plt
+    load_processor_plugins()
     
     # Format specific options for tex or rst
     if options.format == 'tex':
@@ -326,6 +368,11 @@ def run_pweave():
         # If the codeblock has ended, process it
         if line.startswith('@'):
             blockoptions = get_options(optionstring)
+            try:
+                processor_name = blockoptions['__pweave_processor_name']
+                codeprocessor = processors[processor_name]
+            except:
+                codeprocessor = processors['default']
             
             document_text, code_text = codeprocessor.process_code(block, blockoptions)
             
@@ -360,8 +407,6 @@ if __name__ == "__main__":
     parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.12")
     parser.add_option("-f", "--format", dest="format", default='sphinx',
                       help="The ouput format: 'sphinx' (default), 'rst' or 'tex'")
-    parser.add_option("-m", "--matplotlib", dest="mplotlib", default='true',
-                      help="Do you want to use matplotlib true (default) or false")
     parser.add_option("-g", "--figure-format", dest="figfmt",
                       help="Figure format for matplolib graphics: "
                            "Defaults to 'png' for rst and Sphinx html, " 
