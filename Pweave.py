@@ -61,10 +61,10 @@ def run_pweave():
     
     # Format specific options for tex or rst
     if format == 'tex':
-        codestart = '\\begin{verbatim}' 
-        codeend = '\end{verbatim}\n'
-        outputstart = '\\begin{verbatim}' 
-        outputend = '\end{verbatim}\n' 
+        codestart = '\\begin{verbatim}\n' 
+        codeend = '\\end{verbatim}\n'
+        outputstart = '\\begin{verbatim}\n'
+        outputend = '\\end{verbatim}\n' 
         codeindent = ''
         figfmt = '.pdf'
         ext = 'tex'
@@ -116,7 +116,6 @@ def run_pweave():
 
     
     # Process the whole text file with a loop
-    
     for line in lines:
         code = re.search('^<<(.*)>>=$', line.strip())
         
@@ -137,12 +136,12 @@ def run_pweave():
                 if format=="tex": outfile.write(codestart)  
                 
                 for x in block.splitlines():
-                    outfile.write('>>> ' + x)
+                    outfile.write('>>> ' + x + '\n')
                     result = exec_code(x)
                     if len(result) > 0:
                         outfile.write(result)
                 
-                result = ''        
+                result = ''
                 outfile.write(codeend)
             else:
                 #include source in output file?
@@ -201,20 +200,20 @@ def run_pweave():
                         outfile.write('   :width: ' + width + '\n\n')
                 if format == 'sphinx':
                     if blockoptions['caption'] > 0:
-                        outfile.write('.. figure:: ' + imgdir + 'Fig' + str(nfig)  + '.*' + '\n')
+                        outfile.write('.. figure:: ' + imgdir + 'Fig' + str(nfig)  + '.*\n')
                         outfile.write('   :width: ' + width + '\n\n')
                         outfile.write('   ' + blockoptions['caption'] + '\n\n')
                     else:
-                        outfile.write('.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*' + '\n')
+                        outfile.write('.. image:: ' + imgdir + 'Fig' + str(nfig)  + '.*\n')
                         outfile.write('   :width: ' + width + '\n\n')
                 if format == 'tex':
                     if blockoptions['caption'] > 0:
-                        outfile.write(r'\begin{figure}' + '\n')
-                        outfile.write('\includegraphics{'+ figname + '}' + '\n')
-                        outfile.write('\caption{' + blockoptions['caption'] + '}' + '\n')
-                        outfile.write('\end{figure}' + '\n')
+                        outfile.write('\\begin{figure}\n')
+                        outfile.write('\\includegraphics{'+ figname + '}\n')
+                        outfile.write('\\caption{' + blockoptions['caption'] + '}\n')
+                        outfile.write('\\end{figure}\n')
                     else:
-                        outfile.write('\includegraphics{'+ figname + '}\n\n')
+                        outfile.write('\\includegraphics{'+ figname + '}\n\n')
     
                 nfig = nfig +1
             
