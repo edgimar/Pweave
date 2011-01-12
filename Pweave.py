@@ -273,12 +273,17 @@ processors = {'default': DefaultProcessor()}
 def load_processor_plugins():
     "Import and instantiate all processor plugin-module classes."
     global processors
-    # add the plugin paths if they're not already in the path
-    plugin_paths = [ os.path.join(os.path.abspath('.'), 'pweave_plugins'),
-                     os.path.join(os.path.expanduser('~'), '.pweave_plugins') ]
+    # add the plugin-directory paths if they're not already in the path
+    plugindir_paths = [
+                    os.path.join(os.path.abspath('.'), 'pweave_plugins'),
+                    os.path.join(os.path.expanduser('~'), '.pweave_plugins')
+                      ]
+    
+    if options.plugindir is not None:
+        plugindir_paths.insert(0, os.path.abspath(options.plugindir))
     
     files = []
-    for p in reversed(plugin_paths):
+    for p in reversed(plugindir_paths):
         if not p in sys.path:
             sys.path.insert(0, p)
         # make list of modules we find in the plugin path
@@ -409,6 +414,8 @@ if __name__ == "__main__":
                            "and 'pdf' for tex documents ")
     parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
                       help="Directory path for matplolib graphics: Default 'images/'")
+    parser.add_option("-p", "--plugin-directory", dest="plugindir",
+                      help="Directory path containing Pweave plugin files.")
     (options, args) = parser.parse_args()
     infile = args[0]
     run_pweave()
