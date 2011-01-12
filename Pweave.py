@@ -210,7 +210,7 @@ default_block_options = {
                            "width": '15 cm',
                            "caption": '',
                            "term": 'False',
-                           "__pweave_processor_name": "default"
+                           "p": "default" # the name of the processor to use
                         }
 
 # A function for parsing options
@@ -226,7 +226,7 @@ def get_options(optionstring):
     key1=val1, key2=val2, ...
     
     The string processor-name is optional, and if specified, will end up being
-    placed in the dictionary using the "__pweave_processor_name" key.
+    placed in the dictionary using the "p" key.
     
     All keys, values, and the processor-name may contain spaces and commas if
     surrounded by "" (double-quotes).  NOTE: single quotes will not work for
@@ -239,12 +239,16 @@ def get_options(optionstring):
     block_options = {}
     block_options.update(default_block_options)
     
-    # TODO: parsing appears to fail when processor-name is the only 'option'
+    # TODO: parsing appears to fail when block-name is the only 'option'
     if len(optionstring) > 0:
         # match against a first element in the list which isn't an x=y pair
-        m = re.match('([^,"=]*),([^=].*)', optionstring)
+        m = re.match('^([^,"=]*),([^=].*)$', optionstring)
+        if m is None:
+            # try to match assuming there is only a block-name in the string
+            m = re.match('(^[^,"=]*)()$', optionstring)
+        
         if m is not None:
-            key="__pweave_processor_name"
+            key="__pweave_block_name"
             val=m.group(1).strip(" \t").strip('"')
             block_options[key] = val
             optionstring = m.groups()[-1]
@@ -361,7 +365,7 @@ def run_pweave():
         if line.startswith('@'):
             blockoptions = get_options(optionstring)
             try:
-                processor_name = blockoptions['__pweave_processor_name']
+                processor_name = blockoptions['p']
                 codeprocessor = processors[processor_name]
             except:
                 codeprocessor = processors['default']
