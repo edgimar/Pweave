@@ -316,37 +316,19 @@ def load_processor_plugins():
         cls_name = classInstance.name()
         processors[cls_name] = classInstance
 
-def run_pweave():
-    load_processor_plugins()
+def preprocess(input_text):
+    """Preprocesses *input_text* and returns preprocessed document and code text.
     
-    # Format specific options for tex or rst
-    if options.format == 'tex':
-        figfmt = '.pdf'
-        ext = 'tex'
-    elif options.format == 'rst':
-        figfmt = '.png'
-        ext = 'rst'
-    elif options.format == 'sphinx':
-        figfmt = '.png'
-        options.sphinxtexfigfmt = '.pdf'
-        ext = 'rst'
+    *input_text* should represent the entire contents of a Pweave source file.
+    These contents will be processed according to the directives contained in
+    them, and the text for the resulting output document and python file will
+    be returned as the *doc_output_text* and *code_output_text* strings. 
     
-    # Override the default fig format with command line option
-    if options.figfmt > 0:
-        options.figfmt = '.' + options.figfmt
-    else:
-        options.figfmt = figfmt
+    """
+    pyfile = StringIO.StringIO()
+    outfile = StringIO.StringIO()
     
-    # Open the file to be processed and get the output file name
-    basename = infile.split('.')[0]
-    outfile_fname = basename + '.' + ext
-    pyfile_fname = basename + '.' + 'py'
-    
-    codefile = open(infile, 'r')
-    outfile = open(outfile_fname, 'w')
-    pyfile = open(pyfile_fname, 'w')
-    
-    lines = codefile.readlines()
+    lines = input_text.splitlines(True) # keep carriage-returns
     
     # Initialize some variables
     state = 'text'
@@ -393,12 +375,55 @@ def run_pweave():
         if state == 'text':
             outfile.write(line)
     
-    # Done processing the file, save extracted code and tell the user what has happened
+    doc_output = outfile.getvalue() 
+    code_output = pyfile.getvalue()
+    outfile.close()
     pyfile.close()
-    codefile.close()
     
-    print 'Output written to', outfile_fname
-    print 'Code extracted to', pyfile_fname
+    return (doc_output, code_output)
+
+def weave_and_tangle(input_filename, doc_output_filename, code_output_filename):
+    "Process a Pweave file, writing the results to the specified output files."
+    
+    input_text = open(input_filename, 'r').read()
+    
+    document_text, code_text = preprocess(input_text)
+    
+    open(doc_output_filename, 'w').write(document_text)
+    open(code_output_filename, 'w').write(code_text)  
+    
+    # Done processing the file and saving results; tell the user what has happened
+    print 'Output written to', doc_output_filename
+    print 'Code extracted to', code_output_filename
+    
+
+def run_pweave():
+    load_processor_plugins()
+    
+    # Format specific options for tex or rst
+    if options.format == 'tex':
+        figfmt = '.pdf'
+        ext = 'tex'
+    elif options.format == 'rst':
+        figfmt = '.png'
+        ext = 'rst'
+    elif options.format == 'sphinx':
+        figfmt = '.png'
+        options.sphinxtexfigfmt = '.pdf'
+        ext = 'rst'
+    
+    # Override the default fig format with command line option
+    if options.figfmt > 0:
+        options.figfmt = '.' + options.figfmt
+    else:
+        options.figfmt = figfmt
+    
+    # Open the file to be processed and get the output file name
+    basename = infile.split('.')[0]
+    outfile_fname = basename + '.' + ext
+    pyfile_fname = basename + '.' + 'py'
+    
+    weave_and_tangle(infile, outfile_fname, pyfile_fname)
 
 
 if __name__ == "__main__":
