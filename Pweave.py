@@ -38,10 +38,7 @@ class CodeProcessor(object):
         "Return a string representing the name of this code-processor"
         raise NotImplementedError
     
-    def set_default_options(self, codeblock_options):
-        self.default_options = codeblock_options
-    
-    def process_code(self, codeblock, codeblock_options=None):
+    def process_code(self, codeblock, codeblock_options):
         """Process a code-block; return text to include in output documents.
         
         This method must do something with the (possibly multi-line) string
@@ -51,9 +48,6 @@ class CodeProcessor(object):
         
         """
         raise NotImplementedError
-        
-        if codeblock_options is None:
-            codeblock_options = self.default_options
         
         # ... build document_text and code_text strings, etc.  ...
         
@@ -93,10 +87,8 @@ class DefaultProcessor(CodeProcessor):
         "Return a string representing the name of this code-processor"
         return 'default'
 
-    def process_code(self, codeblock, codeblock_options=None):
+    def process_code(self, codeblock, codeblock_options):
         outbuf = StringIO.StringIO() # temporary file obj for storing text
-        if codeblock_options is None:
-            codeblock_options = self.default_options
         blockoptions = codeblock_options
         
         # Format specific options for tex or rst
