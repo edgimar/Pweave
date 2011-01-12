@@ -1,6 +1,8 @@
 """
 This module defines a TableProcessor class for use with Pweave.
 
+2011-01-11, Mark Edgington
+
 """
 # this plugin module is only imported by Pweave.py
 import __main__ as pweave
@@ -9,6 +11,7 @@ options = pweave.options
 plt = pweave.plt
 
 import StringIO
+from string import Template
 
 class TableProcessor(CodeProcessor):
     """Processor for generating (LaTeX) tables.
@@ -33,8 +36,111 @@ class TableProcessor(CodeProcessor):
     TODO: other formatting options
     
     """
+    def __init__(self, execution_namespace=None):
+        super(TableProcessor, self).__init__(execution_namespace)
+        self.default_options = {
+                                'caption': '',
+                                'center': 'true',
+                                'table_list_name': 'table_rows',
+                                'column_labels': None,
+                                'row_labels': None,
+                               }
+    
     def name(self):
         return "table"
     
-    # TODO: implement...
+    def output_template_str(self):
+        return r'''
+\begin{table}
+\caption{$caption}
+\begin{center}
+\begin{tabular}{$tabular_format}
+\hline
+$columnlabels
 
+$rows
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+'''
+    
+    def col_label_str(self, col_labels, row_labels=None):
+        "Return LaTeX code for column labels"
+        if len(col_labels) == 0:
+            return ''
+
+        bold_labels = [r'\textbf{' + str(label) + r'}' for label in col_labels]
+        if row_labels is not None:
+            # then we need an extra empty initial column
+            bold_labels.insert(0, '')
+        
+        s = r' & '.join(bold_labels) + r'\\ \hline' + "\n"
+        
+        return s
+    
+    def rows_str(self, table_rows, row_labels=None):
+        "Return LaTeX code for all rows"
+        
+        s = ''
+        for i,row in enumerate(table_rows):
+            latex_row_elems = [str(elem) for elem in row]
+            if row_labels is not None:
+                latex_row_elems.insert(0, r'\textbf{' + row_labels[i] + r'}')
+            
+            s += r' & '.join(latex_row_elems) + r'\\' + "\n"
+        
+        s += r'\hline' + "\n"
+        
+        return s
+    
+    def tabular_format_str(self, table_rows, row_labels=None):
+        "Return LaTeX 'tabular' environment format string"
+ 
+        row_length = len(table_rows[0])
+        if row_labels is not None:
+            row_length += 1
+        
+        #TODO: don't hardcode to all 'c' elems
+        format_elems = ['c'] * row_length
+        
+        s = "|" + "|".join(format_elems) + "|"
+        
+        return s
+        #return "|l | c |"
+        
+    
+    def process_code(self, codeblock, codeblock_options):
+        substitution_vars = {}
+        opts = {}
+        opts.update(self.default_options)
+        opts.update(codeblock_options)
+
+        out = self.exec_code(codeblock)
+        # extract object from exec_code()'s namespace:
+        table_rows = self.execution_namespace['table_rows']
+        
+        if opts['column_labels'] is not None:
+            col_labels = self.execution_namespace[opts['column_labels']]
+            substitution_vars['columnlabels'] = self.col_label_str(col_labels)
+        else:
+            substitution_vars['columnlabels'] = ''
+        
+        if opts['row_labels'] is not None:
+            row_labels = self.execution_namespace[opts['row_labels']]
+        else:
+            row_labels = None
+        
+        substitution_vars['rows'] = self.rows_str(table_rows, row_labels)
+        substitution_vars['tabular_format'] = self.tabular_format_str(table_rows, row_labels)
+        substitution_vars['caption'] = opts['caption']
+
+        document_text = \
+            Template(self.output_template_str()).substitute(substitution_vars)
+        
+        if opts['echo']:
+            code_text = codeblock
+        else:
+            code_text = ''
+        
+        return (document_text, code_text)
