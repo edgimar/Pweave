@@ -371,6 +371,8 @@ def run_pweave():
             blockoptions = get_options(optionstring)
             try:
                 processor_name = blockoptions['p']
+                if processor_name not in processors:
+                    print "WARNING: processor '%s' not found; using default instead." % processor_name
                 codeprocessor = processors[processor_name]
             except:
                 codeprocessor = processors['default']
