@@ -272,7 +272,7 @@ def get_options(optionstring):
     return block_options
 
 # global dict mapping names to processor class instances
-processors = {}
+processors = {'default': DefaultProcessor()}
 
 def load_processor_plugins():
     "Import and instantiate all processor plugin-module classes."
