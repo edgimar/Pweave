@@ -44,11 +44,24 @@ class CodeProcessor(object):
             execution_namespace = exec_namespace
         
         self.execution_namespace = execution_namespace
-        self.default_options = {}
     
     def name(self):
         "Return a string representing the name of this code-processor"
         raise NotImplementedError
+    
+    def default_block_options(self):
+        "Return a dictionary containing the processor's default block-options."
+        # OVERRIDE THIS METHOD IF YOUR PROCESSOR NEEDS SPECIFIC OPTION DEFAULTS
+        return {}
+    
+    def merge_options_and_process(self, codeblock, codeblock_options):
+        "Call self.process_code() after combining options and option-defaults."
+        
+        opts = {}
+        opts.update(self.default_block_options())
+        opts.update(codeblock_options)
+        
+        return self.process_code(codeblock, opts)
     
     def process_code(self, codeblock, codeblock_options):
         """Process a code-block; return text to include in output documents.
@@ -57,6 +70,11 @@ class CodeProcessor(object):
         *codeblock*, and return two strings -- one to be included in the
         'output' file (e.g. a LaTeX file), and one to be included in the
         generated python file.
+        
+        *codeblock_options* is a dictionary which will contain all default
+        options returned by the default_block_options() method, except for
+        those defaults that have been overriden by the options specified in a
+        block's header string (i.e. << ... >>= ).
         
         """
         raise NotImplementedError
@@ -98,6 +116,20 @@ class DefaultProcessor(CodeProcessor):
     def name(self):
         "Return a string representing the name of this code-processor"
         return 'default'
+
+    def default_block_options(self):
+        "Return a dictionary containing the processor's default block-options."
+        option_defaults = {
+                           "echo": 'True',
+                           "results": 'verbatim',
+                           "fig": 'False',
+                           "evaluate": 'True',
+                           "width": '15 cm',
+                           "caption": '',
+                           "term": 'False',
+                          }
+        
+        return option_defaults
 
     def process_code(self, codeblock, codeblock_options):
         outbuf = StringIO.StringIO() # temporary file obj for storing text
@@ -214,17 +246,6 @@ class DefaultProcessor(CodeProcessor):
         
         return (document_text, codeblock) # document_text, code_text
 
-default_block_options = {
-                           "echo": 'True',
-                           "results": 'verbatim',
-                           "fig": 'False',
-                           "evaluate": 'True',
-                           "width": '15 cm',
-                           "caption": '',
-                           "term": 'False',
-                           "p": "default" # the name of the processor to use
-                        }
-
 # A function for parsing options
 def get_options(optionstring):
     """Parse option string into dictionary.
@@ -248,8 +269,8 @@ def get_options(optionstring):
     The dictionary containing the parsed key/value pairs is returned.
     
     """
-    block_options = {}
-    block_options.update(default_block_options)
+    # use 'default' processor by default
+    block_options = {"p": "default"}
     
     # TODO: parsing appears to fail when block-name is the only 'option'
     if len(optionstring) > 0:
@@ -371,7 +392,8 @@ def preprocess(input_text):
             except:
                 codeprocessor = processors['default']
             
-            document_text, code_text = codeprocessor.process_code(block, blockoptions)
+            document_text, code_text = \
+                    codeprocessor.merge_options_and_process(block, blockoptions)
             
             pyfile.write(code_text)
             outfile.write(document_text)

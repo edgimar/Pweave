@@ -36,19 +36,22 @@ class TableProcessor(CodeProcessor):
     TODO: other formatting options
     
     """
-    def __init__(self, execution_namespace=None):
-        super(TableProcessor, self).__init__(execution_namespace)
-        self.default_options = {
-                                'caption': '',
-                                'center': 'true',
-                                'table_list_name': 'tablerows',
-                                'column_labels': None,
-                                'row_labels': None,
-                               }
-    
     def name(self):
         return "table"
     
+    def default_block_options(self):
+        "Return a dictionary containing the processor's default block-options."
+        option_defaults = {
+                            'caption': '',
+                            'center': 'true',
+                            'table_list_name': 'tablerows',
+                            'column_labels': None,
+                            'row_labels': None,
+                          }
+        
+        return option_defaults
+
+
     def output_template_str(self):
         return r'''
 \begin{table}
@@ -109,33 +112,31 @@ $rows
     
     def process_code(self, codeblock, codeblock_options):
         substitution_vars = {}
-        opts = {}
-        opts.update(self.default_options)
-        opts.update(codeblock_options)
 
-        out = self.exec_code(codeblock)
+        # execute the codeblock, storing results in self.execution_namespace
+        self.exec_code(codeblock)
         # extract object from exec_code()'s namespace:
         table_rows = self.execution_namespace['tablerows']
         
-        if opts['column_labels'] is not None:
-            col_labels = self.execution_namespace[opts['column_labels']]
+        if codeblock_options['column_labels'] is not None:
+            col_labels = self.execution_namespace[codeblock_options['column_labels']]
             substitution_vars['columnlabels'] = self.col_label_str(col_labels)
         else:
             substitution_vars['columnlabels'] = ''
         
-        if opts['row_labels'] is not None:
-            row_labels = self.execution_namespace[opts['row_labels']]
+        if codeblock_options['row_labels'] is not None:
+            row_labels = self.execution_namespace[codeblock_options['row_labels']]
         else:
             row_labels = None
         
         substitution_vars['rows'] = self.rows_str(table_rows, row_labels)
         substitution_vars['tabular_format'] = self.tabular_format_str(table_rows, row_labels)
-        substitution_vars['caption'] = opts['caption']
+        substitution_vars['caption'] = codeblock_options['caption']
 
         document_text = \
             Template(self.output_template_str()).substitute(substitution_vars)
         
-        if opts['echo']:
+        if codeblock_options['echo']:
             code_text = codeblock
         else:
             code_text = ''
