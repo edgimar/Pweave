@@ -7,10 +7,7 @@ This module defines a TableProcessor class for use with Pweave.
 # this plugin module is only imported by Pweave.py
 import __main__ as pweave
 CodeProcessor = pweave.CodeProcessor
-options = pweave.options
-plt = pweave.plt
 
-import StringIO
 from string import Template
 
 class TableProcessor(CodeProcessor):

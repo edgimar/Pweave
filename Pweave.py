@@ -44,6 +44,7 @@ class CodeProcessor(object):
             execution_namespace = exec_namespace
         
         self.execution_namespace = execution_namespace
+        self.cmdline_opts = cmdline_opts # cmdline_opts is global
     
     def name(self):
         "Return a string representing the name of this code-processor"
@@ -136,19 +137,19 @@ class DefaultProcessor(CodeProcessor):
         blockoptions = codeblock_options
         
         # Format specific options for tex or rst
-        if options.format == 'tex':
+        if self.cmdline_opts.format == 'tex':
             codestart = '\\begin{verbatim}\n' 
             codeend = '\\end{verbatim}\n'
             outputstart = '\\begin{verbatim}\n'
             outputend = '\\end{verbatim}\n' 
             codeindent = ''
-        elif options.format == 'rst':
+        elif self.cmdline_opts.format == 'rst':
             codestart = '::\n\n' 
             codeend = '\n\n'
             outputstart = '::\n\n' 
             outputend = '\n\n' 
             codeindent = '  '
-        elif options.format == 'sphinx':
+        elif self.cmdline_opts.format == 'sphinx':
             codestart = '::\n\n' 
             codeend = '\n\n'
             outputstart = '::\n\n' 
@@ -159,7 +160,7 @@ class DefaultProcessor(CodeProcessor):
         #print dtmode
         if blockoptions['term'].lower() == 'true':
             outbuf.write('\n')
-            if options.format=="tex": outbuf.write(codestart)  
+            if self.cmdline_opts.format=="tex": outbuf.write(codestart)  
             
             for x in codeblock.splitlines():
                 outbuf.write('>>> ' + x + '\n')
@@ -206,14 +207,16 @@ class DefaultProcessor(CodeProcessor):
         
         #Save and include a figure?
         if blockoptions['fig'].lower() == 'true':
-            figname = options.figdir + 'Fig' +str(self.nfig) + options.figfmt
+            figname = self.cmdline_opts.figdir + 'Fig' +str(self.nfig) \
+                    + self.cmdline_opts.figfmt
             plt.savefig(figname, dpi = 200)
             
-            if options.format == 'sphinx':
-                figname2 = options.figdir + 'Fig' +str(self.nfig) +  options.sphinxtexfigfmt
+            if self.cmdline_opts.format == 'sphinx':
+                figname2 = self.cmdline_opts.figdir + 'Fig' + str(self.nfig) \
+                         + self.cmdline_opts.sphinxtexfigfmt
                 plt.savefig(figname2)
             plt.clf()
-            if options.format == 'rst':
+            if self.cmdline_opts.format == 'rst':
                 if blockoptions['caption']:
                     #If the image has a caption, use Figure directive
                     outbuf.write('.. figure:: ' + figname + '\n')
@@ -222,15 +225,17 @@ class DefaultProcessor(CodeProcessor):
                 else:
                     outbuf.write('.. image:: ' + figname + '\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            if options.format == 'sphinx':
+            if self.cmdline_opts.format == 'sphinx':
                 if blockoptions['caption']:
-                    outbuf.write('.. figure:: ' + options.figdir + 'Fig' + str(self.nfig)  + '.*\n')
+                    outbuf.write('.. figure:: ' + self.cmdline_opts.figdir \
+                                            + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
                     outbuf.write('   ' + blockoptions['caption'] + '\n\n')
                 else:
-                    outbuf.write('.. image:: ' + options.figdir + 'Fig' + str(self.nfig)  + '.*\n')
+                    outbuf.write('.. image:: ' + self.cmdline_opts.figdir \
+                                        + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            if options.format == 'tex':
+            if self.cmdline_opts.format == 'tex':
                 if blockoptions['caption']:
                     outbuf.write('\\begin{figure}\n')
                     outbuf.write('\\includegraphics{'+ figname + '}\n')
@@ -272,7 +277,6 @@ def get_options(optionstring):
     # use 'default' processor by default
     block_options = {"p": "default"}
     
-    # TODO: parsing appears to fail when block-name is the only 'option'
     if len(optionstring) > 0:
         # match against a first element in the list which isn't an x=y pair
         m = re.match('^([^,"=]*),([^=].*)$', optionstring)
@@ -300,20 +304,21 @@ def get_options(optionstring):
     
     return block_options
 
-# global dict mapping names to processor class instances
-processors = {'default': DefaultProcessor()}
-
 def load_processor_plugins():
     "Import and instantiate all processor plugin-module classes."
+    
     global processors
+    # dict mapping names to processor class instances
+    processors = {'default': DefaultProcessor()}
+
     # add the plugin-directory paths if they're not already in the path
     plugindir_paths = [
                     os.path.join(os.path.abspath('.'), 'pweave_plugins'),
                     os.path.join(os.path.expanduser('~'), '.pweave_plugins')
                       ]
     
-    if options.plugindir is not None:
-        plugindir_paths.insert(0, os.path.abspath(options.plugindir))
+    if cmdline_opts.plugindir is not None:
+        plugindir_paths.insert(0, os.path.abspath(cmdline_opts.plugindir))
     
     files = []
     for p in reversed(plugindir_paths):
@@ -368,8 +373,8 @@ def preprocess(input_text):
     block = ''
     
     # Create figure directory if it doesn't exist
-    if os.path.isdir(options.figdir) == False:
-        os.mkdir(options.figdir)
+    if os.path.isdir(cmdline_opts.figdir) == False:
+        os.mkdir(cmdline_opts.figdir)
     
     # Process the whole text file with a loop
     for line in lines:
@@ -435,22 +440,22 @@ def run_pweave():
     load_processor_plugins()
     
     # Format specific options for tex or rst
-    if options.format == 'tex':
+    if cmdline_opts.format == 'tex':
         figfmt = '.pdf'
         ext = 'tex'
-    elif options.format == 'rst':
+    elif cmdline_opts.format == 'rst':
         figfmt = '.png'
         ext = 'rst'
-    elif options.format == 'sphinx':
+    elif cmdline_opts.format == 'sphinx':
         figfmt = '.png'
-        options.sphinxtexfigfmt = '.pdf'
+        cmdline_opts.sphinxtexfigfmt = '.pdf'
         ext = 'rst'
     
     # Override the default fig format with command line option
-    if options.figfmt > 0:
-        options.figfmt = '.' + options.figfmt
+    if cmdline_opts.figfmt > 0:
+        cmdline_opts.figfmt = '.' + cmdline_opts.figfmt
     else:
-        options.figfmt = figfmt
+        cmdline_opts.figfmt = figfmt
     
     # Open the file to be processed and get the output file name
     basename = infile.split('.')[0]
@@ -459,12 +464,11 @@ def run_pweave():
     
     weave_and_tangle(infile, outfile_fname, pyfile_fname)
 
-
 if __name__ == "__main__":
     if len(sys.argv)==1:
         print "This is Pweave, enter Pweave -h for help"
         sys.exit()
-    
+        
     # Command line options
     parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.12")
     parser.add_option("-f", "--format", dest="format", default='sphinx',
@@ -477,8 +481,9 @@ if __name__ == "__main__":
                       help="Directory path for matplolib graphics: Default 'images/'")
     parser.add_option("-p", "--plugin-directory", dest="plugindir",
                       help="Directory path containing Pweave plugin files.")
-    (options, args) = parser.parse_args()
-    infile = args[0]
+    cmdline_opts, cmdline_args = parser.parse_args()
+    infile = cmdline_args[0]
+    
     run_pweave()
 
 
