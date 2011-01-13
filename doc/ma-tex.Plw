@@ -44,12 +44,14 @@ show()
 @ 
 
 
-<<p=table,results=rst, column_labels=column_labels, caption="The first 10 values of the frequency response (w,h) as a table, notice that the code is hidden in the output document.", echo=False>>=
+<<p=table,results=rst, column_labels=columnlabels, row_labels=rowlabels, caption="The first 10 values of the frequency response (w,h) as a table, notice that the code is hidden in the output document.", echo=False>>=
 
-column_labels = ['Amplitude', 'Frequency']
-table_rows = []
+columnlabels = ['', 'Amplitude', 'Frequency'] # first label corresponds to
+                                               # extra col for row labels 
+rowlabels = range(1,11)
+tablerows = []
 for i in range(10):
-    table_rows.append([round(h[i],2), round(w[i],2)])
+    tablerows.append([round(h[i],2), round(w[i],2)])
 @ 
 
 \end{document}

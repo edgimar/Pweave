@@ -41,7 +41,7 @@ class TableProcessor(CodeProcessor):
         self.default_options = {
                                 'caption': '',
                                 'center': 'true',
-                                'table_list_name': 'table_rows',
+                                'table_list_name': 'tablerows',
                                 'column_labels': None,
                                 'row_labels': None,
                                }
@@ -65,15 +65,12 @@ $rows
 \end{table}
 '''
     
-    def col_label_str(self, col_labels, row_labels=None):
+    def col_label_str(self, col_labels):
         "Return LaTeX code for column labels"
         if len(col_labels) == 0:
             return ''
 
         bold_labels = [r'\textbf{' + str(label) + r'}' for label in col_labels]
-        if row_labels is not None:
-            # then we need an extra empty initial column
-            bold_labels.insert(0, '')
         
         s = r' & '.join(bold_labels) + r'\\ \hline' + "\n"
         
@@ -86,7 +83,7 @@ $rows
         for i,row in enumerate(table_rows):
             latex_row_elems = [str(elem) for elem in row]
             if row_labels is not None:
-                latex_row_elems.insert(0, r'\textbf{' + row_labels[i] + r'}')
+                latex_row_elems.insert(0, r'\textbf{' + str(row_labels[i]) + r'}')
             
             s += r' & '.join(latex_row_elems) + r'\\' + "\n"
         
@@ -118,7 +115,7 @@ $rows
 
         out = self.exec_code(codeblock)
         # extract object from exec_code()'s namespace:
-        table_rows = self.execution_namespace['table_rows']
+        table_rows = self.execution_namespace['tablerows']
         
         if opts['column_labels'] is not None:
             col_labels = self.execution_namespace[opts['column_labels']]
