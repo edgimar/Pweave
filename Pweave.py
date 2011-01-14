@@ -44,7 +44,12 @@ class CodeProcessor(object):
             execution_namespace = exec_namespace
         
         self.execution_namespace = execution_namespace
-        self.cmdline_opts = cmdline_opts # cmdline_opts is global
+        self.cmdline_opts = cmdline_opts # cmdline_opts is global to this mod.
+        
+        # define the parent directory of the input file
+        # infile is global (only in this module!)
+        self.parentdir = os.path.abspath(os.path.join(os.path.abspath(infile),
+                                                      os.path.pardir))
     
     def name(self):
         "Return a string representing the name of this code-processor"

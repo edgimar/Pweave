@@ -44,6 +44,7 @@ class TableProcessor(CodeProcessor):
                             'table_list_name': 'tablerows',
                             'column_labels': None,
                             'row_labels': None,
+                            'echo': 'false',
                           }
         
         return option_defaults
@@ -133,7 +134,8 @@ $rows
         document_text = \
             Template(self.output_template_str()).substitute(substitution_vars)
         
-        if codeblock_options['echo']:
+        # by default, don't echo the codeblock to the output document
+        if codeblock_options['echo'].lower() == 'true':
             code_text = codeblock
         else:
             code_text = ''
