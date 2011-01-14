@@ -33,6 +33,9 @@ class MatplotlibFigureProcessor(CodeProcessor):
     
     *width* -- specifies (in any valid LaTeX units) the image
                width.  The default is "0.9\linewidth".
+               
+    *height* -- specifies (in any valid LaTeX units) the image height
+                If height is not specified, only width is used.
     
     *center* -- should the figure be centered? (true/false). Default=true
     
@@ -58,7 +61,8 @@ class MatplotlibFigureProcessor(CodeProcessor):
         option_defaults = {
                             'output_folder': 'images',
                             'filename': None,
-                            'width': r'0.9\linewidth',
+                            'width': None,
+                            'height': None,
                             'center': 'true',
                             'caption': '',
                             'label': None,
@@ -73,7 +77,7 @@ class MatplotlibFigureProcessor(CodeProcessor):
         return r'''
 \begin{figure}[$where]
  $centering
- \includegraphics[width=$width]{$imgfile}
+ \includegraphics[$dimensions]{$imgfile}
  \caption{$caption}
  $label
 \end{figure}
@@ -94,6 +98,21 @@ class MatplotlibFigureProcessor(CodeProcessor):
         
         for k in ['width', 'caption', 'where']:
             s[k] = o[k]
+        
+        
+        #r'0.9\linewidth',
+        dimensions = []
+        heightset = (o['height'] is not None)
+        widthset = (o['width'] is not None)
+        
+        if widthset:
+            dimensions.append('width=' + o['width'])
+        if heightset:
+            dimensions.append('height=' + o['height'])
+        if not widthset and not heightset:
+            dimensions.append(r'width=0.9\linewidth')
+
+        s['dimensions'] = ",".join(dimensions)
         
         if o['label'] is not None:
             s['label'] = r'\label{' + o['label'] + '}\n'
