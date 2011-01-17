@@ -173,9 +173,9 @@ class DefaultProcessor(CodeProcessor):
                 if len(result) > 0:
                     outbuf.write(result)
             
-            result = ''
             outbuf.write(codeend)
         else:
+            result = ''
             #include source in output file?
             if blockoptions['echo'].lower() == 'true':
                 outbuf.write(codestart)
@@ -193,22 +193,21 @@ class DefaultProcessor(CodeProcessor):
                 
                 result = self.exec_code(codeblock).splitlines()
         
-        #If we get results they are printed
-        if len(result) > 0:
-            indent = codeindent # default indentation
-            
-            if blockoptions['results'] == "verbatim":
-                outbuf.write(outputstart)
-            elif blockoptions['results'] in ['rst', 'tex']:
-                indent = ''
-            
-            for x in result:
-                outbuf.write(indent + x + '\n')
-            outbuf.write('\n')
-            
-            if blockoptions['results'] == "verbatim":
-                outbuf.write(outputend)
-            result = ''
+            #If we get results they are printed
+            if len(result) > 0:
+                indent = codeindent # default indentation
+                
+                if blockoptions['results'] == "verbatim":
+                    outbuf.write(outputstart)
+                elif blockoptions['results'] in ['rst', 'tex']:
+                    indent = ''
+                
+                for x in result:
+                    outbuf.write(indent + x + '\n')
+                outbuf.write('\n')
+                
+                if blockoptions['results'] == "verbatim":
+                    outbuf.write(outputend)
         
         #Save and include a figure?
         if blockoptions['fig'].lower() == 'true':
