@@ -50,6 +50,8 @@ class CodeProcessor(object):
         # infile is global (only in this module!)
         self.parentdir = os.path.abspath(os.path.join(os.path.abspath(infile),
                                                       os.path.pardir))
+        # dict with name->processor instance mapping
+        self.processors = processors
     
     def name(self):
         "Return a string representing the name of this code-processor"
@@ -59,6 +61,24 @@ class CodeProcessor(object):
         "Return a dictionary containing the processor's default block-options."
         # OVERRIDE THIS METHOD IF YOUR PROCESSOR NEEDS SPECIFIC OPTION DEFAULTS
         return {}
+    
+    def process_foreign(self, processor_name, codeblock, codeblock_options):
+        """Process specified codeblock with the named processor and options.
+        
+        *processor_name* is used to look up a processor instance having that
+        name.  This processor instance is passed codeblock and
+        codeblock_options, and its resulting text variables are returned.
+        
+        The purpose of this function is to chain together processors to make
+        "meta-processors" that depend on one or more 'real' processors.
+        
+        """
+        if not processor_name in self.processors:
+            raise UserWarning("Error: %s processor unavailable (needed by %s)"\
+                                % (processor_name, self.name()) )
+        return self.processors[processor_name].merge_options_and_process(
+                                                            codeblock,
+                                                            codeblock_options)
     
     def merge_options_and_process(self, codeblock, codeblock_options):
         "Call self.process_code() after combining options and option-defaults."
@@ -313,6 +333,8 @@ def load_processor_plugins():
     
     global processors
     # dict mapping names to processor class instances
+    # (necessary to initialize prior to instantiating a processor)
+    processors = {} 
     processors = {'default': DefaultProcessor()}
 
     # add the plugin-directory paths if they're not already in the path
