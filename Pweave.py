@@ -369,9 +369,14 @@ def load_processor_plugins():
     # create list of plugin class objects which have been loaded
     loaded_plugin_classes = []
     for module in plugin_modules.values():
-        # list of classes which are based on CodeProcessor
-        class_list = module.CodeProcessor.__subclasses__() 
-        loaded_plugin_classes.extend(class_list) # append list entries
+        try:
+            # list of classes which are based on CodeProcessor
+            class_list = module.CodeProcessor.__subclasses__() 
+            loaded_plugin_classes.extend(class_list) # append list entries
+        except AttributeError:
+            # CodeProcessor not defined in the module (doesn't have any
+            # CodeProcessor classes)
+            pass
     
     # create instances of each plugin class object,
     # and store them in the global instance dictionary *processors*
