@@ -409,7 +409,7 @@ def preprocess(input_text):
     
     # Process the whole text file with a loop
     for line in lines:
-        code = re.search('^<<(.*)>>=$', line.strip())
+        code = re.search('^<<(.*)>>=.*$', line.strip())
         
         # if at the start of a code block
         if code is not None:
