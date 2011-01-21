@@ -302,6 +302,12 @@ def get_options(optionstring):
     block_options = {"p": "default"}
     
     if len(optionstring) > 0:
+        if optionstring.startswith('#'):
+            # consider this to be a "commented-out" block which is not
+            # processed in any way, nor included in any output document.
+            block_options['__pweave_do_not_process'] = True
+            return block_options
+            
         # match against a first element in the list which isn't an x=y pair
         m = re.match('^([^,"=]*),([^=].*)$', optionstring)
         if m is None:
@@ -420,16 +426,20 @@ def preprocess(input_text):
         # If the codeblock has ended, process it
         if line.startswith('@'):
             blockoptions = get_options(optionstring)
-            try:
-                processor_name = blockoptions['p']
-                if processor_name not in processors:
-                    print "WARNING: processor '%s' not found; using default instead." % processor_name
-                codeprocessor = processors[processor_name]
-            except:
-                codeprocessor = processors['default']
             
-            document_text, code_text = \
-                    codeprocessor.merge_options_and_process(block, blockoptions)
+            if blockoptions.has_key('__pweave_do_not_process'):
+                document_text, code_text = ('', '')
+            else:
+                try:
+                    processor_name = blockoptions['p']
+                    if processor_name not in processors:
+                        print "WARNING: processor '%s' not found; using default instead." % processor_name
+                    codeprocessor = processors[processor_name]
+                except:
+                    codeprocessor = processors['default']
+                
+                document_text, code_text = \
+                        codeprocessor.merge_options_and_process(block, blockoptions)
             
             pyfile.write(code_text)
             outfile.write(document_text)
