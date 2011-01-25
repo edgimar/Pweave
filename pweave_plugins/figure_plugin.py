@@ -49,8 +49,8 @@ class MatplotlibFigureProcessor(CodeProcessor):
     TODO: other formatting options
     
     """
-    def __init__(self):
-        super(MatplotlibFigureProcessor, self).__init__()
+    def __init__(self, processors):
+        super(MatplotlibFigureProcessor, self).__init__(processors)
         self.figure_number = 1 # counter used for autogenerating figure-names
         
     def name(self):

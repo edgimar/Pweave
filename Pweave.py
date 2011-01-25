@@ -32,7 +32,7 @@ exec_namespace = {} # global (and local) namespace for exec()'ed code
 
 class CodeProcessor(object):
     "Base Class for code-processor classes, used for processing code blocks"
-    def __init__(self, execution_namespace=None):
+    def __init__(self, all_processors, execution_namespace=None):
         """
         *codeblock_options* -- a dictionary containing options specified for
                                the code-block.
@@ -47,11 +47,17 @@ class CodeProcessor(object):
         self.cmdline_opts = cmdline_opts # cmdline_opts is global to this mod.
         
         # define the parent directory of the input file
-        # infile is global (only in this module!)
-        self.parentdir = os.path.abspath(os.path.join(os.path.abspath(infile),
-                                                      os.path.pardir))
+        infile = self.cmdline_opts['sourcefile_path']
+        self.parentdir = os.path.abspath(
+                            os.path.join(
+                                os.path.abspath(infile),
+                                os.path.pardir
+                            )
+                         )
+
+        
         # dict with name->processor instance mapping
-        self.processors = processors
+        self.processors = all_processors
     
     def name(self):
         "Return a string representing the name of this code-processor"
@@ -162,19 +168,19 @@ class DefaultProcessor(CodeProcessor):
         blockoptions = codeblock_options
         
         # Format specific options for tex or rst
-        if self.cmdline_opts.format == 'tex':
+        if self.cmdline_opts['format'] == 'tex':
             codestart = '\\begin{verbatim}\n' 
             codeend = '\\end{verbatim}\n'
             outputstart = '\\begin{verbatim}\n'
             outputend = '\\end{verbatim}\n' 
             codeindent = ''
-        elif self.cmdline_opts.format == 'rst':
+        elif self.cmdline_opts['format'] == 'rst':
             codestart = '::\n\n' 
             codeend = '\n\n'
             outputstart = '::\n\n' 
             outputend = '\n\n' 
             codeindent = '  '
-        elif self.cmdline_opts.format == 'sphinx':
+        elif self.cmdline_opts['format'] == 'sphinx':
             codestart = '::\n\n' 
             codeend = '\n\n'
             outputstart = '::\n\n' 
@@ -185,7 +191,7 @@ class DefaultProcessor(CodeProcessor):
         #print dtmode
         if blockoptions['term'].lower() == 'true':
             outbuf.write('\n')
-            if self.cmdline_opts.format=="tex": outbuf.write(codestart)  
+            if self.cmdline_opts['format']=="tex": outbuf.write(codestart)
             
             for x in codeblock.splitlines():
                 outbuf.write('>>> ' + x + '\n')
@@ -231,16 +237,16 @@ class DefaultProcessor(CodeProcessor):
         
         #Save and include a figure?
         if blockoptions['fig'].lower() == 'true':
-            figname = self.cmdline_opts.figdir + 'Fig' +str(self.nfig) \
-                    + self.cmdline_opts.figfmt
+            figname = self.cmdline_opts['figdir'] + 'Fig' +str(self.nfig) \
+                    + self.cmdline_opts['figfmt']
             plt.savefig(figname, dpi = 200)
             
-            if self.cmdline_opts.format == 'sphinx':
-                figname2 = self.cmdline_opts.figdir + 'Fig' + str(self.nfig) \
-                         + self.cmdline_opts.sphinxtexfigfmt
+            if self.cmdline_opts['format'] == 'sphinx':
+                figname2 = self.cmdline_opts['figdir'] + 'Fig' + str(self.nfig) \
+                         + self.cmdline_opts['sphinxtexfigfmt']
                 plt.savefig(figname2)
             plt.clf()
-            if self.cmdline_opts.format == 'rst':
+            if self.cmdline_opts['format'] == 'rst':
                 if blockoptions['caption']:
                     #If the image has a caption, use Figure directive
                     outbuf.write('.. figure:: ' + figname + '\n')
@@ -249,17 +255,17 @@ class DefaultProcessor(CodeProcessor):
                 else:
                     outbuf.write('.. image:: ' + figname + '\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            if self.cmdline_opts.format == 'sphinx':
+            if self.cmdline_opts['format'] == 'sphinx':
                 if blockoptions['caption']:
-                    outbuf.write('.. figure:: ' + self.cmdline_opts.figdir \
+                    outbuf.write('.. figure:: ' + self.cmdline_opts['figdir'] \
                                             + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
                     outbuf.write('   ' + blockoptions['caption'] + '\n\n')
                 else:
-                    outbuf.write('.. image:: ' + self.cmdline_opts.figdir \
+                    outbuf.write('.. image:: ' + self.cmdline_opts['figdir'] \
                                         + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            if self.cmdline_opts.format == 'tex':
+            if self.cmdline_opts['format'] == 'tex':
                 if blockoptions['caption']:
                     outbuf.write('\\begin{figure}\n')
                     outbuf.write('\\includegraphics{'+ figname + '}\n')
@@ -336,8 +342,8 @@ def get_options(optionstring):
 
 def load_processor_plugins():
     "Import and instantiate all processor plugin-module classes."
+    # TODO: add documentation on how this works / what it does/returns
     
-    global processors
     # dict mapping names to processor class instances
     # (necessary to initialize prior to instantiating a processor)
     processors = {} 
@@ -349,8 +355,8 @@ def load_processor_plugins():
                     os.path.join(os.path.expanduser('~'), '.pweave_plugins')
                       ]
     
-    if cmdline_opts.plugindir is not None:
-        plugindir_paths.insert(0, os.path.abspath(cmdline_opts.plugindir))
+    if cmdline_opts['plugindir'] is not None:
+        plugindir_paths.insert(0, os.path.abspath(cmdline_opts['plugindir']))
     
     files = []
     for p in reversed(plugindir_paths):
@@ -387,11 +393,15 @@ def load_processor_plugins():
     # create instances of each plugin class object,
     # and store them in the global instance dictionary *processors*
     for classObject in loaded_plugin_classes:
-        classInstance = classObject()
+        # the processors dict is passed to each processor instance, so that
+        # each processor is able to make use of other processors.
+        classInstance = classObject(processors)
         cls_name = classInstance.name()
         processors[cls_name] = classInstance
+    
+    return processors
 
-def preprocess(input_text):
+def preprocess(input_text, processors):
     """Preprocesses *input_text* and returns preprocessed document and code text.
     
     *input_text* should represent the entire contents of a Pweave source file.
@@ -410,8 +420,8 @@ def preprocess(input_text):
     block = ''
     
     # Create figure directory if it doesn't exist
-    if os.path.isdir(cmdline_opts.figdir) == False:
-        os.mkdir(cmdline_opts.figdir)
+    if os.path.isdir(cmdline_opts['figdir']) == False:
+        os.mkdir(cmdline_opts['figdir'])
     
     # Process the whole text file with a loop
     for line in lines:
@@ -462,12 +472,13 @@ def preprocess(input_text):
     
     return (doc_output, code_output)
 
-def weave_and_tangle(input_filename, doc_output_filename, code_output_filename):
+def weave_and_tangle(input_filename, doc_output_filename, code_output_filename,
+                        processors):
     "Process a Pweave file, writing the results to the specified output files."
     
     input_text = open(input_filename, 'r').read()
     
-    document_text, code_text = preprocess(input_text)
+    document_text, code_text = preprocess(input_text, processors)
     
     open(doc_output_filename, 'w').write(document_text)
     open(code_output_filename, 'w').write(code_text)  
@@ -477,39 +488,36 @@ def weave_and_tangle(input_filename, doc_output_filename, code_output_filename):
     print 'Code extracted to', code_output_filename
     
 
-def run_pweave():
-    load_processor_plugins()
+def run_pweave(cmdopts):
+    processors = load_processor_plugins()
     
     # Format specific options for tex or rst
-    if cmdline_opts.format == 'tex':
+    if cmdopts['format'] == 'tex':
         figfmt = '.pdf'
         ext = 'tex'
-    elif cmdline_opts.format == 'rst':
+    elif cmdopts['format'] == 'rst':
         figfmt = '.png'
         ext = 'rst'
-    elif cmdline_opts.format == 'sphinx':
+    elif cmdopts['format'] == 'sphinx':
         figfmt = '.png'
-        cmdline_opts.sphinxtexfigfmt = '.pdf'
+        cmdopts['sphinxtexfigfmt'] = '.pdf'
         ext = 'rst'
     
     # Override the default fig format with command line option
-    if cmdline_opts.figfmt > 0:
-        cmdline_opts.figfmt = '.' + cmdline_opts.figfmt
+    if cmdopts['figfmt'] > 0:
+        cmdopts['figfmt'] = '.' + cmdopts['figfmt']
     else:
-        cmdline_opts.figfmt = figfmt
+        cmdopts['figfmt'] = figfmt
     
     # Open the file to be processed and get the output file name
+    infile = cmdopts['sourcefile_path']
     basename = infile.split('.')[0]
     outfile_fname = basename + '.' + ext
     pyfile_fname = basename + '.' + 'py'
     
-    weave_and_tangle(infile, outfile_fname, pyfile_fname)
-
+    weave_and_tangle(infile, outfile_fname, pyfile_fname, processors)
+    
 if __name__ == "__main__":
-    if len(sys.argv)==1:
-        print "This is Pweave, enter Pweave -h for help"
-        sys.exit()
-        
     # Command line options
     parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.12")
     parser.add_option("-f", "--format", dest="format", default='sphinx',
@@ -523,8 +531,18 @@ if __name__ == "__main__":
     parser.add_option("-p", "--plugin-directory", dest="plugindir",
                       help="Directory path containing Pweave plugin files.")
     cmdline_opts, cmdline_args = parser.parse_args()
-    infile = cmdline_args[0]
     
-    run_pweave()
+    # convert it to a dictionary
+    cmdline_opts = cmdline_opts.__dict__
+    # add information from the arguments (e.g. the specified source-file) to
+    # the options dictionary; *only the options dictionary* is passed to other
+    # functions/classes.
+    cmdline_opts['sourcefile_path'] = cmdline_args[0]
+    
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit()
+    
+    run_pweave(cmdline_opts)
 
 
