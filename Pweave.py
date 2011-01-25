@@ -520,28 +520,30 @@ def run_pweave(cmdopts):
 if __name__ == "__main__":
     # Command line options
     parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.12")
-    parser.add_option("-f", "--format", dest="format", default='sphinx',
-                      help="The ouput format: 'sphinx' (default), 'rst' or 'tex'")
-    parser.add_option("-g", "--figure-format", dest="figfmt",
-                      help="Figure format for matplolib graphics: "
-                           "Defaults to 'png' for rst and Sphinx html, " 
-                           "and 'pdf' for tex documents ")
-    parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
-                      help="Directory path for matplolib graphics: Default 'images/'")
-    parser.add_option("-p", "--plugin-directory", dest="plugindir",
-                      help="Directory path containing Pweave plugin files.")
-    cmdline_opts, cmdline_args = parser.parse_args()
+    parser.add_option("-f", "--source-format", dest="format", default='tex',
+          help="Native sourcefile format: 'tex' (default), 'rst' or 'sphinx'")
     
-    # convert it to a dictionary
+    parser.add_option("-g", "--figure-format", dest="figfmt",
+          help="Preferred format for generated graphics. Default is 'png' for "
+               "rst and sphinx, and 'pdf' for tex documents.")
+    
+    parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
+          help="Directory path for generated graphics. Default is 'images'")
+    
+    parser.add_option("-p", "--plugin-directory", dest="plugindir",
+          help="Directory path containing Pweave plugin files.")
+    cmdline_opts, cmdline_args = parser.parse_args()
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit()
+    
+    # convert options object to a dictionary
     cmdline_opts = cmdline_opts.__dict__
+    
     # add information from the arguments (e.g. the specified source-file) to
     # the options dictionary; *only the options dictionary* is passed to other
     # functions/classes.
     cmdline_opts['sourcefile_path'] = cmdline_args[0]
-    
-    if len(sys.argv)==1:
-        parser.print_help()
-        sys.exit()
     
     run_pweave(cmdline_opts)
 
