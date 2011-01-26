@@ -22,7 +22,10 @@ source file.  To make a plugin available when running Pweave, simply place its
   * ~/.pweave_plugins
 
 The plugins included with Pweave can be found in the pweave_plugins directory,
-which is in the same directory as this README file.
+which is in the same directory as this README file.  Additionally, any
+non-plugin python file or module that you wish to import from within a
+code-block can be placed in one of the three directories above, because these
+directories are added to sys.path.
 
 
 Quick Start
@@ -88,6 +91,26 @@ is included directly in Pweave, whereas all other processors are available as
 
 Default
 -------
-TODO (refer to the "code chunk options" section of the sphinx-generated
-documentation, or in the associated sourcefile *doc/usage.rst* .)
+The default processor has various options for how to include/process python
+code-blocks.  For more information, refer to the "code chunk options" section
+of the sphinx-generated documentation (run make from within the doc folder), or
+in the associated sourcefile *doc/usage.rst*.
+
+
+Matplotlib Figure Plugin (mplfig)
+---------------------------------
+Given a code-block containing sourcecode required to generate a matplotlib
+figure, a PDF file of this figure will be stored, and the LaTeX snippet
+required for including the image in a LaTeX figure will be generated. 
+            
+Table Plugin (table)
+--------------------
+Execute a code-block, and generate a LaTeX table from a set of python lists
+which specify table elements (i.e. what to populate the table's rows and
+labels with).
+
+\[Add Your Own Plugin Here\]
+----------------------------
+If you have a fantastic idea for a processor plugin, and wish to contribute it,
+please do!
 
