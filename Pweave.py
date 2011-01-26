@@ -561,9 +561,10 @@ if __name__ == "__main__":
           help="Preferred format for generated graphics. Default is 'png' for "
                "rst and sphinx, and 'pdf' for tex documents.")
     
-    parser.add_option("-d", "--image-directory", dest="imgfolder_path", default = 'images',
+    parser.add_option("-d", "--image-directory", dest="imgfolder_path",
+          default='pweave_images',
           help="Preferred directory for generated graphics (absolute or "
-               "relative to base output directory). Default is 'images'")
+               "relative to base output directory). Default is 'pweave_images'")
     
     parser.add_option("-b", "--base-output-directory",
           dest="base_output_path", default = None,
