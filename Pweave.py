@@ -237,13 +237,14 @@ class DefaultProcessor(CodeProcessor):
         
         #Save and include a figure?
         if blockoptions['fig'].lower() == 'true':
-            figname = self.cmdline_opts['figdir'] + 'Fig' +str(self.nfig) \
-                    + self.cmdline_opts['figfmt']
+            figname = self.cmdline_opts['img_path'] + 'Fig' +str(self.nfig) \
+                    + self.cmdline_opts['img_format']
             plt.savefig(figname, dpi = 200)
             
+            #TODO: fix / remove this if-block (what is/was its purpose?)
             if self.cmdline_opts['format'] == 'sphinx':
-                figname2 = self.cmdline_opts['figdir'] + 'Fig' + str(self.nfig) \
-                         + self.cmdline_opts['sphinxtexfigfmt']
+                figname2 = self.cmdline_opts['img_path'] + 'Fig' + str(self.nfig) \
+                         + self.cmdline_opts['sphinxteximg_format']
                 plt.savefig(figname2)
             plt.clf()
             if self.cmdline_opts['format'] == 'rst':
@@ -255,17 +256,17 @@ class DefaultProcessor(CodeProcessor):
                 else:
                     outbuf.write('.. image:: ' + figname + '\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            if self.cmdline_opts['format'] == 'sphinx':
+            elif self.cmdline_opts['format'] == 'sphinx':
                 if blockoptions['caption']:
-                    outbuf.write('.. figure:: ' + self.cmdline_opts['figdir'] \
+                    outbuf.write('.. figure:: ' + self.cmdline_opts['img_path'] \
                                             + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
                     outbuf.write('   ' + blockoptions['caption'] + '\n\n')
                 else:
-                    outbuf.write('.. image:: ' + self.cmdline_opts['figdir'] \
+                    outbuf.write('.. image:: ' + self.cmdline_opts['img_path'] \
                                         + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            if self.cmdline_opts['format'] == 'tex':
+            elif self.cmdline_opts['format'] == 'tex':
                 if blockoptions['caption']:
                     outbuf.write('\\begin{figure}\n')
                     outbuf.write('\\includegraphics{'+ figname + '}\n')
@@ -420,8 +421,8 @@ def preprocess(input_text, processors):
     block = ''
     
     # Create figure directory if it doesn't exist
-    if os.path.isdir(cmdline_opts['figdir']) == False:
-        os.mkdir(cmdline_opts['figdir'])
+    if os.path.isdir(cmdline_opts['img_path']) == False:
+        os.mkdir(cmdline_opts['img_path'])
     
     # Process the whole text file with a loop
     for line in lines:
@@ -493,21 +494,21 @@ def run_pweave(cmdopts):
     
     # Format specific options for tex or rst
     if cmdopts['format'] == 'tex':
-        figfmt = '.pdf'
+        img_format = '.pdf'
         ext = 'tex'
     elif cmdopts['format'] == 'rst':
-        figfmt = '.png'
+        img_format = '.png'
         ext = 'rst'
     elif cmdopts['format'] == 'sphinx':
-        figfmt = '.png'
-        cmdopts['sphinxtexfigfmt'] = '.pdf'
+        img_format = '.png'
+        cmdopts['sphinxteximg_format'] = '.pdf'
         ext = 'rst'
     
     # Override the default fig format with command line option
-    if cmdopts['figfmt'] > 0:
-        cmdopts['figfmt'] = '.' + cmdopts['figfmt']
+    if cmdopts['img_format'] > 0:
+        cmdopts['img_format'] = '.' + cmdopts['img_format']
     else:
-        cmdopts['figfmt'] = figfmt
+        cmdopts['img_format'] = img_format
     
     # Open the file to be processed and get the output file name
     infile = cmdopts['sourcefile_path']
@@ -523,15 +524,15 @@ if __name__ == "__main__":
     parser.add_option("-f", "--source-format", dest="format", default='tex',
           help="Native sourcefile format: 'tex' (default), 'rst' or 'sphinx'")
     
-    parser.add_option("-g", "--figure-format", dest="figfmt",
+    parser.add_option("-g", "--image-format", dest="img_format",
           help="Preferred format for generated graphics. Default is 'png' for "
                "rst and sphinx, and 'pdf' for tex documents.")
     
-    parser.add_option("-d", "--figure-directory", dest="figdir", default = 'images/',
+    parser.add_option("-d", "--image-directory", dest="img_path", default = 'images',
           help="Directory path for generated graphics. Default is 'images'")
     
     parser.add_option("-p", "--plugin-directory", dest="plugindir",
-          help="Directory path containing Pweave plugin files.")
+          help="Optional directory containing Pweave plugin files.")
     cmdline_opts, cmdline_args = parser.parse_args()
     if len(sys.argv)==1:
         parser.print_help()
