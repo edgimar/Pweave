@@ -501,11 +501,21 @@ def run_pweave(settings):
     else:
         settings['img_format'] = img_format
     
-    # Open the file to be processed and get the output file name
+    # get the names of output files
     infile = settings['sourcefile_path']
-    basename = infile.split('.')[0]
+    basename, infile_ext = os.path.splitext(infile)
+    if infile_ext == ext:
+        raise UserWarning("aborted: input and output filenames identical")
     outfile_fname = basename + ext
     pyfile_fname = basename + '.py'
+    
+    # try to create the output directories
+    for path in [settings['base_output_path'], settings['imgfolder_path']]:
+        try:
+            os.makedirs(path)
+        except os.error:
+            # already exists or failed to create
+            pass
     
     weave_and_tangle(infile, outfile_fname, pyfile_fname, processors)
     
