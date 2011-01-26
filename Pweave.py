@@ -480,36 +480,36 @@ def weave_and_tangle(input_filename, doc_output_filename, code_output_filename,
     print 'Code extracted to', code_output_filename
     
 
-def run_pweave(cmdopts):
+def run_pweave(settings):
     processors = load_processor_plugins()
     
     # Format specific options for tex or rst
-    if cmdopts['format'] == 'tex':
+    if settings['format'] == 'tex':
         img_format = '.pdf'
-        ext = 'tex'
-    elif cmdopts['format'] == 'rst':
+        ext = '.tex'
+    elif settings['format'] == 'rst':
         img_format = '.png'
-        ext = 'rst'
-    elif cmdopts['format'] == 'sphinx':
+        ext = '.rst'
+    elif settings['format'] == 'sphinx':
         img_format = '.png'
-        cmdopts['sphinxteximg_format'] = '.pdf'
-        ext = 'rst'
+        settings['sphinxteximg_format'] = '.pdf'
+        ext = '.rst'
     
     # Override the default fig format with command line option
-    if cmdopts['img_format'] > 0:
-        cmdopts['img_format'] = '.' + cmdopts['img_format']
+    if settings['img_format'] > 0:
+        settings['img_format'] = '.' + settings['img_format']
     else:
-        cmdopts['img_format'] = img_format
+        settings['img_format'] = img_format
     
     # Open the file to be processed and get the output file name
-    infile = cmdopts['sourcefile_path']
+    infile = settings['sourcefile_path']
     basename = infile.split('.')[0]
-    outfile_fname = basename + '.' + ext
-    pyfile_fname = basename + '.' + 'py'
+    outfile_fname = basename + ext
+    pyfile_fname = basename + '.py'
     
     weave_and_tangle(infile, outfile_fname, pyfile_fname, processors)
     
-def regularize_paths(opts):
+def regularize_paths(settings_dict):
     """
     Process and replace the paths in the options dictionary, such that the
     following absolute paths (dict keys) are available:
@@ -523,20 +523,22 @@ def regularize_paths(opts):
         imgfolder_path_relative -- relativized imgfolder_path
     
     """
-    opts['sourcefile_path'] = os.path.abspath(opts['sourcefile_path'])
-    opts['base_input_path'] = os.path.dirname(opts['sourcefile_path'])
-    if opts['base_output_path'] is None:
-        opts['base_output_path'] = opts['base_input_path']
-    else:
-        opts['base_output_path'] = os.path.abspath(opts['base_output_path'])
+    s = settings_dict
     
-    opts['imgfolder_path'] = os.path.join(opts['base_output_path'], 
-                                          opts['imgfolder_path'])
+    s['sourcefile_path'] = os.path.abspath(s['sourcefile_path'])
+    s['base_input_path'] = os.path.dirname(s['sourcefile_path'])
+    if s['base_output_path'] is None:
+        s['base_output_path'] = s['base_input_path']
+    else:
+        s['base_output_path'] = os.path.abspath(s['base_output_path'])
+    
+    s['imgfolder_path'] = os.path.join(s['base_output_path'], 
+                                       s['imgfolder_path'])
     # we use relpath because it may be that imgfolder_path is specified as an
     # absolute path from the commandline, and its relative form might look like
     # "../../some/path"
-    opts['imgfolder_path_relative'] = os.path.relpath(opts['imgfolder_path'],
-                                                      opts['base_output_path'])
+    s['imgfolder_path_relative'] = os.path.relpath(s['imgfolder_path'],
+                                                   s['base_output_path'])
     
 
 if __name__ == "__main__":
