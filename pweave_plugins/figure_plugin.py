@@ -59,7 +59,7 @@ class MatplotlibFigureProcessor(CodeProcessor):
     def default_block_options(self):
         "Return a dictionary containing the processor's default block-options."
         option_defaults = {
-                            'output_folder': 'images',
+                            'output_folder': None, # to override global default
                             'filename': None,
                             'width': None,
                             'height': None,
@@ -77,16 +77,16 @@ class MatplotlibFigureProcessor(CodeProcessor):
         return r'''
 \begin{figure}[$where]
  $centering
- \includegraphics[$dimensions]{$imgfile}
+ \includegraphics[$dimensions]{$imgfile_relpath}
  \caption{$caption}
  $label
 \end{figure}
 '''
 
-    def get_image_path(self, outfolder):
-        "Autogenerate an image path."
+    def get_image_abspath(self, outfolder):
+        "Autogenerate and return an absolute image path."
         fname = "mpl_image_%03d.pdf" % self.figure_number
-        imgpath = os.path.join(outfolder, fname)
+        imgpath = os.path.abspath(os.path.join(outfolder, fname))
         
         return imgpath
         
@@ -124,12 +124,22 @@ class MatplotlibFigureProcessor(CodeProcessor):
         else:
             s['centering'] = ''
         
-        outfolder = os.path.join(self.parentdir, o['output_folder'])
+        if o['output_folder'] is not None:
+            outfolder = os.path.join(self.settings['base_output_path'],
+                                     o['output_folder'])
+        else:
+            # use globally set default output-image folder
+            outfolder = self.settings['imgfolder_path']
+        
         if o['filename'] is not None:
-            s['imgfile'] = os.path.join(outfolder, o['filename'])
+            s['imgfile_abspath'] = os.path.join(outfolder, o['filename'])
         else:
             # auto-generate filename
-            s['imgfile'] = self.get_image_path(outfolder)
+            s['imgfile_abspath'] = self.get_image_abspath(outfolder)
+            
+        s['imgfile_relpath'] = os.path.relpath(s['imgfile_abspath'],
+                                               self.settings['base_output_path']
+                                              )
         
         return substitution_vars
     
@@ -144,7 +154,8 @@ class MatplotlibFigureProcessor(CodeProcessor):
         
         # execute the codeblock, storing results in self.execution_namespace
         self.exec_code(codeblock)
-        self.write_figure(substitution_vars['imgfile'])
+        # a bit ugly... (passing info here via substitution_vars dict)
+        self.write_figure(substitution_vars['imgfile_abspath'])
 
         document_text = \
             Template(self.output_template_str()).substitute(substitution_vars)

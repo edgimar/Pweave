@@ -27,6 +27,7 @@ import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 exec_namespace = {} # global (and local) namespace for exec()'ed code
 
@@ -44,17 +45,7 @@ class CodeProcessor(object):
             execution_namespace = exec_namespace
         
         self.execution_namespace = execution_namespace
-        self.cmdline_opts = cmdline_opts # cmdline_opts is global to this mod.
-        
-        # define the parent directory of the input file
-        infile = self.cmdline_opts['sourcefile_path']
-        self.parentdir = os.path.abspath(
-                            os.path.join(
-                                os.path.abspath(infile),
-                                os.path.pardir
-                            )
-                         )
-
+        self.settings = settings # settings is global to this mod.
         
         # dict with name->processor instance mapping
         self.processors = all_processors
@@ -168,19 +159,19 @@ class DefaultProcessor(CodeProcessor):
         blockoptions = codeblock_options
         
         # Format specific options for tex or rst
-        if self.cmdline_opts['format'] == 'tex':
+        if self.settings['format'] == 'tex':
             codestart = '\\begin{verbatim}\n' 
             codeend = '\\end{verbatim}\n'
             outputstart = '\\begin{verbatim}\n'
             outputend = '\\end{verbatim}\n' 
             codeindent = ''
-        elif self.cmdline_opts['format'] == 'rst':
+        elif self.settings['format'] == 'rst':
             codestart = '::\n\n' 
             codeend = '\n\n'
             outputstart = '::\n\n' 
             outputend = '\n\n' 
             codeindent = '  '
-        elif self.cmdline_opts['format'] == 'sphinx':
+        elif self.settings['format'] == 'sphinx':
             codestart = '::\n\n' 
             codeend = '\n\n'
             outputstart = '::\n\n' 
@@ -191,7 +182,7 @@ class DefaultProcessor(CodeProcessor):
         #print dtmode
         if blockoptions['term'].lower() == 'true':
             outbuf.write('\n')
-            if self.cmdline_opts['format']=="tex": outbuf.write(codestart)
+            if self.settings['format']=="tex": outbuf.write(codestart)
             
             for x in codeblock.splitlines():
                 outbuf.write('>>> ' + x + '\n')
@@ -237,17 +228,17 @@ class DefaultProcessor(CodeProcessor):
         
         #Save and include a figure?
         if blockoptions['fig'].lower() == 'true':
-            figname = self.cmdline_opts['img_path'] + 'Fig' +str(self.nfig) \
-                    + self.cmdline_opts['img_format']
+            figname = self.settings['imgfolder_path'] + 'Fig' +str(self.nfig) \
+                    + self.settings['img_format']
             plt.savefig(figname, dpi = 200)
             
             #TODO: fix / remove this if-block (what is/was its purpose?)
-            if self.cmdline_opts['format'] == 'sphinx':
-                figname2 = self.cmdline_opts['img_path'] + 'Fig' + str(self.nfig) \
-                         + self.cmdline_opts['sphinxteximg_format']
+            if self.settings['format'] == 'sphinx':
+                figname2 = self.settings['imgfolder_path'] + 'Fig' + str(self.nfig) \
+                         + self.settings['sphinxteximg_format']
                 plt.savefig(figname2)
             plt.clf()
-            if self.cmdline_opts['format'] == 'rst':
+            if self.settings['format'] == 'rst':
                 if blockoptions['caption']:
                     #If the image has a caption, use Figure directive
                     outbuf.write('.. figure:: ' + figname + '\n')
@@ -256,17 +247,17 @@ class DefaultProcessor(CodeProcessor):
                 else:
                     outbuf.write('.. image:: ' + figname + '\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            elif self.cmdline_opts['format'] == 'sphinx':
+            elif self.settings['format'] == 'sphinx':
                 if blockoptions['caption']:
-                    outbuf.write('.. figure:: ' + self.cmdline_opts['img_path'] \
+                    outbuf.write('.. figure:: ' + self.settings['imgfolder_path'] \
                                             + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
                     outbuf.write('   ' + blockoptions['caption'] + '\n\n')
                 else:
-                    outbuf.write('.. image:: ' + self.cmdline_opts['img_path'] \
+                    outbuf.write('.. image:: ' + self.settings['imgfolder_path'] \
                                         + 'Fig' + str(self.nfig)  + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
-            elif self.cmdline_opts['format'] == 'tex':
+            elif self.settings['format'] == 'tex':
                 if blockoptions['caption']:
                     outbuf.write('\\begin{figure}\n')
                     outbuf.write('\\includegraphics{'+ figname + '}\n')
@@ -356,8 +347,8 @@ def load_processor_plugins():
                     os.path.join(os.path.expanduser('~'), '.pweave_plugins')
                       ]
     
-    if cmdline_opts['plugindir'] is not None:
-        plugindir_paths.insert(0, os.path.abspath(cmdline_opts['plugindir']))
+    if settings['plugindir'] is not None:
+        plugindir_paths.insert(0, os.path.abspath(settings['plugindir']))
     
     files = []
     for p in reversed(plugindir_paths):
@@ -421,8 +412,8 @@ def preprocess(input_text, processors):
     block = ''
     
     # Create figure directory if it doesn't exist
-    if os.path.isdir(cmdline_opts['img_path']) == False:
-        os.mkdir(cmdline_opts['img_path'])
+    if os.path.isdir(settings['imgfolder_path']) == False:
+        os.mkdir(settings['imgfolder_path'])
     
     # Process the whole text file with a loop
     for line in lines:
@@ -518,6 +509,36 @@ def run_pweave(cmdopts):
     
     weave_and_tangle(infile, outfile_fname, pyfile_fname, processors)
     
+def regularize_paths(opts):
+    """
+    Process and replace the paths in the options dictionary, such that the
+    following absolute paths (dict keys) are available:
+        sourcefile_path -- path to the Pweave source file
+        base_input_path -- path to directory containing the source file
+        base_output_path -- path to directory containing generated files
+        imgfolder_path -- path to directory in which images should be placed
+        
+    and the following paths (dict keys) are relative to the directory
+    containing the destination file:
+        imgfolder_path_relative -- relativized imgfolder_path
+    
+    """
+    opts['sourcefile_path'] = os.path.abspath(opts['sourcefile_path'])
+    opts['base_input_path'] = os.path.dirname(opts['sourcefile_path'])
+    if opts['base_output_path'] is None:
+        opts['base_output_path'] = opts['base_input_path']
+    else:
+        opts['base_output_path'] = os.path.abspath(opts['base_output_path'])
+    
+    opts['imgfolder_path'] = os.path.join(opts['base_output_path'], 
+                                          opts['imgfolder_path'])
+    # we use relpath because it may be that imgfolder_path is specified as an
+    # absolute path from the commandline, and its relative form might look like
+    # "../../some/path"
+    opts['imgfolder_path_relative'] = os.path.relpath(opts['imgfolder_path'],
+                                                      opts['base_output_path'])
+    
+
 if __name__ == "__main__":
     # Command line options
     parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.12")
@@ -528,8 +549,13 @@ if __name__ == "__main__":
           help="Preferred format for generated graphics. Default is 'png' for "
                "rst and sphinx, and 'pdf' for tex documents.")
     
-    parser.add_option("-d", "--image-directory", dest="img_path", default = 'images',
-          help="Directory path for generated graphics. Default is 'images'")
+    parser.add_option("-d", "--image-directory", dest="imgfolder_path", default = 'images',
+          help="Preferred directory for generated graphics (absolute or "
+               "relative to base output directory). Default is 'images'")
+    
+    parser.add_option("-b", "--base-output-directory",
+          dest="base_output_path", default = None,
+          help="Directory ")
     
     parser.add_option("-p", "--plugin-directory", dest="plugindir",
           help="Optional directory containing Pweave plugin files.")
@@ -538,14 +564,19 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit()
     
-    # convert options object to a dictionary
-    cmdline_opts = cmdline_opts.__dict__
+    # convert options object to a 'settings' dictionary -- default value of
+    # unknown keys is None
+    settings = defaultdict(lambda: None)
+    settings.update(cmdline_opts.__dict__)
     
     # add information from the arguments (e.g. the specified source-file) to
     # the options dictionary; *only the options dictionary* is passed to other
     # functions/classes.
-    cmdline_opts['sourcefile_path'] = cmdline_args[0]
+    settings['sourcefile_path'] = cmdline_args[0]
     
-    run_pweave(cmdline_opts)
-
+    # after all arguments have been added, convert paths in the settings
+    # dictionary to absolute paths, and add some relative and base paths.
+    regularize_paths(settings)
+    
+    run_pweave(settings)
 
