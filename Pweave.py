@@ -228,8 +228,8 @@ class DefaultProcessor(CodeProcessor):
         
         #Save and include a figure?
         if blockoptions['fig'].lower() == 'true':
-            figname = self.settings['imgfolder_path'] + 'Fig' +str(self.nfig) \
-                    + self.settings['img_format']
+            figname = os.path.join(self.settings['imgfolder_path'],'Fig' +str(self.nfig) \
+                    + self.settings['img_format'])
             plt.savefig(figname, dpi = 200)
             
             #TODO: fix / remove this if-block (what is/was its purpose?)
