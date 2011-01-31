@@ -34,7 +34,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'docs'
+master_doc = 'index'
 
 # General information about the project.
 project = u'Pweave - literate programming with Python'
@@ -60,7 +60,7 @@ release = '0.12'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['ma']
+unused_docs = ['ma', '_static/ma' ]
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.

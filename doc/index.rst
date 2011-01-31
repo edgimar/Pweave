@@ -10,12 +10,12 @@
           extended in its functionality and flexibility with respect to the
           original version.  The newer version is available at
           `<http://bitbucket.org/edgimar/pweave/src>`_.  For a short up-to-date
-          description of this version, see the `README` file in the
+          description of this version, see the :ref:`README <README>` file in the
           repository's root folder.
 
 Welcome
 ------------
-Pweave is a literate programming tool for Python that is developed after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. And like Sweave it uses the `noweb <http://www.cs.tufts.edu/~nr/noweb/>`_ syntax. Pweave is a single python script that is able to weave a python code between “<<>>=” and “@” blocks and include the results in the document. Pweave is good for creating dynamic reports and tutorials. This documentation has been created using `Sphinx <http://sphinx.pocoo.org>`_ and you also download it as `pdf <http://mpastell.com/pweave/_static/Pweave-docs.pdf>`_. 
+Pweave is a literate programming tool for Python that is developed after `Sweave <http://www.stat.uni-muenchen.de/~leisch/Sweave/>`_. And like Sweave it uses the `noweb <http://www.cs.tufts.edu/~nr/noweb/>`_ syntax. Pweave is a single python script that is able to weave a python code between “<<>>=” and “@” blocks and include the results in the document. Pweave is good for creating dynamic reports and tutorials. This documentation has been created using `Sphinx <http://sphinx.pocoo.org>`_.
 
 Features
 __________
@@ -27,28 +27,39 @@ __________
 
 Download
 _________
-Download the latest stable here: `Pweave <http://files.mpastell.com/Pweave>`_. You can also checkout the latest code with mercurial using:
+You can checkout the latest version of the code with mercurial:
 
 ::
  
- hg clone https://pweave.googlecode.com/hg/ pweave 
+ hg clone https://bitbucket.org/edgimar/pweave
 
 Install
 _____________
-To install **Pweave** simply copy the "Pweave" file to a directory in your path and make it executable e.g. using:
+To install **pweave** simply copy (or symlink to) the "pweave.py" file in a directory in your path, and make it executable e.g. using:
 
 ::
 
- cp Pweave /usr/local/bin
- chmod a+xr /usr/local/bin/Pweave
+ cp pweave.py /usr/local/bin/pweave
+ chmod a+xr /usr/local/bin/pweave
+
+Secondly, copy the files in `pweave_plugins` into `$HOME/.pweave_plugins`, or
+create a symbolic link::
+
+ ln -s pweave_plugins $HOME/.pweave_plugins 
 
 Get started
 ______________
 
-See the following documentation to get started:
-
 .. Browse the `Pweave help <usage.html>`_ to get you started!
 
-.. toctree::
+**The up-to-date README contents:**
 
-    docs.rst
+.. toctree::
+    
+    README
+    
+**The old (still being updated) documentation:**
+
+.. toctree::
+    
+    docs

@@ -1,3 +1,5 @@
+.. _README:
+
 Introduction
 ============
 Pweave is a text preprocessor, for textfiles containing special blocks of code.
