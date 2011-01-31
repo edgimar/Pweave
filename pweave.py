@@ -232,10 +232,13 @@ class DefaultProcessor(CodeProcessor):
                     + self.settings['img_format'])
             plt.savefig(figname, dpi = 200)
             
-            #TODO: fix / remove this if-block (what is/was its purpose?)
+            #TODO: why can't we just set 'img_format' for sphinx like we do for
+            #      tex and rst?
             if self.settings['format'] == 'sphinx':
-                figname2 = self.settings['imgfolder_path'] + 'Fig' + str(self.nfig) \
-                         + self.settings['sphinxteximg_format']
+                figname2_base = os.path.join(self.settings['imgfolder_path'], 'Fig' + str(self.nfig)) 
+                figname2 = figname2_base + self.settings['sphinxteximg_format']
+                figname2_base_rel = \
+                    os.path.relpath(figname2_base, self.settings['base_output_path'])
                 plt.savefig(figname2)
             plt.clf()
             if self.settings['format'] == 'rst':
@@ -249,13 +252,11 @@ class DefaultProcessor(CodeProcessor):
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
             elif self.settings['format'] == 'sphinx':
                 if blockoptions['caption']:
-                    outbuf.write('.. figure:: ' + self.settings['imgfolder_path'] \
-                                            + 'Fig' + str(self.nfig)  + '.*\n')
+                    outbuf.write('.. figure:: ' + figname2_base_rel + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
                     outbuf.write('   ' + blockoptions['caption'] + '\n\n')
                 else:
-                    outbuf.write('.. image:: ' + self.settings['imgfolder_path'] \
-                                        + 'Fig' + str(self.nfig)  + '.*\n')
+                    outbuf.write('.. image:: ' + figname2_base_rel + '.*\n')
                     outbuf.write('   :width: ' + blockoptions['width'] + '\n\n')
             elif self.settings['format'] == 'tex':
                 if blockoptions['caption']:

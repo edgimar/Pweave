@@ -4,19 +4,19 @@
 LaTeX example
 -------------
 
-`Here <_static/ma-tex.pdf>`_ is a simple example of a Pweave file (`ma-tex.Plw <_static/ma-tex.Plw>`_) that uses LaTeX as the documentation markup. The file demonstrates basic usage of Pweave and how it can easily be used to add dynamic figures and tables. 
+`Here <_static/ma.pdf>`_ is a simple example of a Pweave file (`ma.tex_pweave <_static/ma.tex_pweave>`_) that uses LaTeX as the documentation markup. The file demonstrates basic usage of Pweave and how it can easily be used to add dynamic figures and tables. 
 
-.. literalinclude:: ma-tex.Plw
+.. literalinclude:: ma.tex_pweave
 
 The file was processed with Pweave using:
 
 :: 
 
-  Pweave -f tex ma.Plw
+  Pweave -f tex ma.tex_pweave
 
-And as result we get the LaTex document `ma-tex.tex <_static/ma-tex.tex>`_ (shown below).  
+And as result we get the LaTex document `ma.tex <_static/ma.tex>`_ (shown below).  
 
-.. literalinclude:: ma-tex.tex
+.. literalinclude:: ma.tex
 
 
-Processing the example with pdflatex produces `this pdf <_static/ma-tex.pdf>`_
+Processing the example with pdflatex produces `this pdf <_static/ma.pdf>`_

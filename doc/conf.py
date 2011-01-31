@@ -175,7 +175,7 @@ latex_font_size = '12pt'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('docs', 'Pweave-docs.tex', u'Pweave - literate programming with Python',
+  ('index', 'Pweave-docs.tex', u'Pweave - literate programming with Python',
    u'Matti Pastell \\\ \\\ \\url{http://mpastell.com/pweave} \\\ ', 'article'),
 ]
 
