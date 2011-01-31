@@ -10,6 +10,7 @@ CodeProcessor = pweave.CodeProcessor
 
 from string import Template
 import re
+import sys
 
 #TODO: make more general (e.g. not specific to LaTeX) -- just a "put x before
 #      and y after" plugin.
@@ -55,6 +56,7 @@ class AutoWrapProcessor(CodeProcessor):
         "Return a dictionary containing the processor's default block-options."
         option_defaults = {
                             'list_delimiter': '#',
+                            'escape_delimiter': '!!',
                           }
         
         return option_defaults
@@ -72,30 +74,50 @@ class AutoWrapProcessor(CodeProcessor):
         # build substitution dictionary (allows for more general substitutions
         # in the future), at the same time replacing fragments with a 
         # substitution-variable.
+        
+        esc = codeblock_options['escape_delimiter']
 
         i=0
+        placeholder_root = "autowrap_"
+        placeholder_tmp_root = esc + esc.join(list(placeholder_root)) + esc 
         for frag,cmd in fragment_dict.iteritems():
             repl_str = '\\' + cmd + '{' + frag + '}'
-            placeholder = "autowrap_placeholder_" + str(i)
+            placeholder = placeholder_root + str(i)
+            
+            # temp-placeholder needed to prevent substituting parts of the
+            # placeholders during the substitution loop.
+            placeholder_tmp = placeholder_tmp_root + str(i)
+            
             substitution_vars[placeholder] = repl_str
             
             escapedfrag = re.escape(frag)
             # only replace when frag is not immediately preceded by '!!' or '${'.
             # uses a "negative lookbehind" assertion: (?<!....)
-            pattern = r'(?<!\$\{|\!\!)' + escapedfrag
-            codeblock = re.sub(pattern, r'${' + placeholder + r'}', codeblock)
-            
-            # if frag preceded by '!!', remove the '!!' 
-            pattern = r'!!' + escapedfrag
-            codeblock = re.sub(pattern, escapedfrag, codeblock) 
+            pattern = r'(?<!\$\{|'+re.escape(esc)+')' + escapedfrag
+            codeblock = re.sub(pattern, r'${' + placeholder_tmp + r'}', codeblock)
             
             i += 1
+            
+        # now all autowrap comamnd substitutions are finished -- replace
+        # escaped placeholders with 'legal' placeholders so Template()
+        # likes the placeholder names.
+        codeblock = codeblock.replace(placeholder_tmp_root, placeholder_root)
+            
+        # loop once more, this time removing '!!' preceeding fragments
+        for frag,cmd in fragment_dict.iteritems():
+            pattern = re.escape(esc) + re.escape(frag)
+            codeblock = re.sub(pattern, re.escape(frag), codeblock) 
         
         # add any additional items to substitution_vars dict here...
         
         # perform substitutions
-        document_text = \
-            Template(codeblock).substitute(substitution_vars)
+        try:
+            document_text = \
+                Template(codeblock).substitute(substitution_vars)
+        except ValueError, e:
+            print e, ':'
+            print codeblock
+            sys.exit(1)
         
         code_text = ''
         
