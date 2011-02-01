@@ -22,7 +22,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.todo', 'sphinx.ext.pngmath', 'rst2pdf.pdfbuilder']
+extensions = ['sphinx.ext.todo', 'sphinx.ext.pngmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -59,12 +59,9 @@ release = '0.12'
 # Else, today_fmt is used as the format for a strftime call.
 #today_fmt = '%B %d, %Y'
 
-# List of documents that shouldn't be included in the build.
-unused_docs = ['ma', '_static/ma' ]
-
-# List of directories, relative to source directory, that shouldn't be searched
-# for source files.
-exclude_trees = ['_build']
+# List of patterns, relative to source directory, that match files and
+# directories to ignore when looking for source files.
+exclude_patterns = ['_build', 'ma.rst', '_static/ma.rst']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -89,8 +86,8 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  Major themes that come with
-# Sphinx are currently 'default' and 'sphinxdoc'.
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
 html_theme = 'sphinxdoc'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -104,9 +101,6 @@ html_theme = 'sphinxdoc'
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
 html_title = "Pweave - literate programming with Python"
-
-# Different theme for index
-#html_additional_pages = {'index' : 'customindex.html'}
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -141,7 +135,7 @@ html_static_path = ['_static']
 #html_additional_pages = {}
 
 # If false, no module index is generated.
-html_use_modindex = True
+#html_domain_indices = True
 
 # If false, no index is generated.
 #html_use_index = True
@@ -151,6 +145,12 @@ html_use_modindex = True
 
 # If true, links to the reST sources are added to the pages.
 #html_show_sourcelink = True
+
+# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
+#html_show_sphinx = True
+
+# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
+#html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
@@ -199,64 +199,6 @@ latex_additional_files = ['pweave.sty']
 #latex_appendices = []
 
 # If false, no module index is generated.
-#latex_use_modindex = True
+#latex_domain_indices = True
 
 
-# -- Options for PDF output --------------------------------------------------
-# Grouping the document tree into PDF files. List of tuples
-# (source start file, target name, title, author, options).
-#
-# If there is more than one author, separate them with \\.
-# For example: r'Guido van Rossum\\Fred L. Drake, Jr., editor'
-#
-# The options element is a dictionary that lets you override
-# this config per-document.
-# For example,
-# ('index', u'MyProject', u'My Project', u'Author Name',
-# dict(pdf_compressed = True))
-# would mean that specific document would be compressed
-# regardless of the global pdf_compressed setting.
-pdf_documents = [
-('docs', u'Pweave', u'Users manual', u'Matti Pastell'),
-]
-# A comma-separated list of custom stylesheets. Example:
-pdf_stylesheets = ['sphinx','kerning','a4']
-# Create a compressed PDF
-# Use True/False or 1/0
-# Example: compressed=True
-#pdf_compressed = False
-# A colon-separated list of folders to search for fonts. Example:
-# pdf_font_path = ['/usr/share/fonts', '/usr/share/texmf-dist/fonts/']
-# Language to be used for hyphenation support
-#pdf_language = "en_US"
-# Mode for literal blocks wider than the frame. Can be
-# overflow, shrink or truncate
-pdf_fit_mode = "truncate"
-# Section level that forces a break page.
-# For example: 1 means top-level sections start in a new page
-# 0 means disabled
-#pdf_break_level = 0
-# When a section starts in a new page, force it to be 'even', 'odd',
-# or just use 'any'
-#pdf_breakside = 'any'
-# Insert footnotes where they are defined instead of
-# at the end.
-#pdf_inline_footnotes = True
-# verbosity level. 0 1 or 2
-#pdf_verbosity = 0
-# If false, no index is generated.
-#pdf_use_index = True
-# If false, no modindex is generated.
-#pdf_use_modindex = True
-# If false, no coverpage is generated.
-#pdf_use_coverpage = True
-# Documents to append as an appendix to all manuals.
-#pdf_appendices = []
-# Enable experimental feature to split table cells. Use it
-# if you get "DelayedTable too big" errors
-#pdf_splittables = False
-# Set the default DPI for images
-pdf_default_dpi = 200
-# Enable rst2pdf extension modules (default is empty list)
-# you need vectorpdf for better sphinx's graphviz support
-#pdf_extensions = ['vectorpdf']
