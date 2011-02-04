@@ -39,7 +39,7 @@ Quick Start
 
 As a quick demonstration of how to use pweave, do the follwing:
 
-1. Create a pweave source file called test.Pnw which contains::
+1. Create a pweave source file called `test.rst_pweave` which contains::
 
      This is a test.
 
@@ -52,11 +52,11 @@ As a quick demonstration of how to use pweave, do the follwing:
 
 2. Run pweave on this file::
 
-     python pweave.py test.Pnw
+     python pweave.py test.rst_pweave
 
 That's it!  Pweave should have generated two files for you, a preprocessed
 document file (by default a reStructuredText file) and a python file.  The document
-file will contain the contents of test.Pnw, where the code block has been
+file will contain the contents of `test.rst_pweave`, where the code block has been
 replaced by the results of evaluating the code within the code block.  The
 python file will contain the contents of the code block (or multiple code
 blocks if there were more than one).
