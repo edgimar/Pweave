@@ -1,7 +1,10 @@
+.. -*- restructuredtext -*-
+
 .. _README:
 
 Introduction
 ============
+
 Pweave is a text preprocessor, for textfiles containing special blocks of code.
 These blocks are processed and replaced with the processing results.  At the
 beginning of each block, one can specify a *processor* to use for processing
@@ -13,6 +16,7 @@ details on the available processors).
 
 Installation
 ============
+
 Pweave is just a single python script which you can place anywhere you wish.
 In addition, there are several text-processing plugins which enable more
 powerful and specific processing of code-blocks (a.k.a. chunks) in a Pweave
@@ -32,6 +36,7 @@ directories are added to sys.path.
 
 Quick Start
 ===========
+
 As a quick demonstration of how to use Pweave, do the follwing:
 
 1. Create a Pweave source file called test.Pnw which contains::
@@ -59,6 +64,7 @@ blocks if there were more than one).
 
 Code Blocks
 ===========
+
 A code block (also known as a *chunk* in the world of literate programming) has the following form::
 
     <<BLOCK-OPTIONS>>=
@@ -79,6 +85,7 @@ nested within one another.
 
 Processors
 ==========
+
 A processor is responsible for handling the contents of a block, performing
 certain operations, and returning text to replace the block with in the
 preprocessed document (i.e. the output of Pweave). Depending on the kind of
@@ -93,6 +100,7 @@ is included directly in Pweave, whereas all other processors are available as
 
 Default
 -------
+
 The default processor has various options for how to include/process python
 code-blocks.  For more information, refer to the "code chunk options" section
 of the sphinx-generated documentation (run make from within the doc folder), or
@@ -101,18 +109,23 @@ in the associated sourcefile *doc/usage.rst*.
 
 Matplotlib Figure Plugin (mplfig)
 ---------------------------------
+
 Given a code-block containing sourcecode required to generate a matplotlib
 figure, a PDF file of this figure will be stored, and the LaTeX snippet
 required for including the image in a LaTeX figure will be generated. 
             
+
 Table Plugin (table)
 --------------------
+
 Execute a code-block, and generate a LaTeX table from a set of python lists
 which specify table elements (i.e. what to populate the table's rows and
 labels with).
 
+
 \[Add Your Own Plugin Here\]
 ----------------------------
+
 If you have a fantastic idea for a processor plugin, and wish to contribute it,
 please do!
 
