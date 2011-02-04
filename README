@@ -123,6 +123,16 @@ which specify table elements (i.e. what to populate the table's rows and
 labels with).
 
 
+AutoWrap Plugin (autowrap)
+--------------------------
+
+Wraps specified substrings in the code-block with an arbitrary LaTeX command,
+and inserts the code-block into the output document with these substrings
+replaced with their wrapped equivalents.  One example of how this can be used
+is when one wants to select certain mathematical symbols in an equation to
+automatically make bold.
+
+
 \[Add Your Own Plugin Here\]
 ----------------------------
 
