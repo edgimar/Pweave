@@ -132,8 +132,8 @@ class CodeProcessor(object):
     
 
 class DefaultProcessor(CodeProcessor):
-    def __init__(self, execution_namespace=None):
-        super(DefaultProcessor, self).__init__(execution_namespace)
+    def __init__(self, all_processors, execution_namespace=None):
+        super(DefaultProcessor, self).__init__(all_processors, execution_namespace)
         self.nfig = 1
     
     def name(self):
@@ -274,7 +274,6 @@ class DefaultProcessor(CodeProcessor):
         
         return (document_text, codeblock) # document_text, code_text
 
-# A function for parsing options
 def get_options(optionstring):
     """Parse option string into dictionary.
     
@@ -333,14 +332,17 @@ def get_options(optionstring):
     
     return block_options
 
-def load_processor_plugins():
+def load_processor_plugins(settings):
     "Import and instantiate all processor plugin-module classes."
     # TODO: add documentation on how this works / what it does/returns
     
     # dict mapping names to processor class instances
     # (necessary to initialize prior to instantiating a processor)
     processors = {} 
-    processors = {'default': DefaultProcessor()}
+    if settings['use_legacy']:
+        processors = {'legacydefault': DefaultProcessor(processors)}
+    else:
+        processors = {'default': DefaultProcessor(processors)}
 
     # add the plugin-directory paths if they're not already in the path
     plugindir_paths = [
@@ -482,7 +484,14 @@ def weave_and_tangle(input_filename, doc_output_filename, code_output_filename,
     
 
 def run_pweave(settings):
-    processors = load_processor_plugins()
+    processors = load_processor_plugins(settings)
+    
+    # set the default sourcefile type if none was provided
+    if settings['format'] is None:
+        if settings['use_legacy']:
+            settings['format'] = 'rst'
+        else:
+            settings['format'] = 'tex'
     
     # Format specific options for tex or rst
     if settings['format'] == 'tex':
@@ -555,7 +564,7 @@ def regularize_paths(settings_dict):
 if __name__ == "__main__":
     # Command line options
     parser = OptionParser(usage="%prog [options] sourcefile", version="%prog 0.12")
-    parser.add_option("-f", "--source-format", dest="format", default='tex',
+    parser.add_option("-f", "--source-format", dest="format", default=None,
           help="Native sourcefile format: 'tex' (default), 'rst' or 'sphinx'")
     
     parser.add_option("-g", "--image-format", dest="img_format",
@@ -570,6 +579,10 @@ if __name__ == "__main__":
     parser.add_option("-b", "--base-output-directory",
           dest="base_output_path", default = None,
           help="Directory ")
+    
+    parser.add_option("-L", "--use-legacy", action="store_true",
+          dest="use_legacy", default = False,
+          help="Maintain backward-compatibility with original pweave version.")
     
     parser.add_option("-p", "--plugin-directory", dest="plugindir",
           help="Optional directory containing Pweave plugin files.")
