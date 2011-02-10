@@ -43,22 +43,22 @@ class CodeProcessor(object):
         if execution_namespace is None:
             # by default, use the namespace defined globally in this module
             execution_namespace = exec_namespace
-        
+
         self.execution_namespace = execution_namespace
         self.settings = settings # settings is global to this mod.
-        
+
         # dict with name->processor instance mapping
         self.processors = all_processors
-    
+
     def name(self):
         "Return a string representing the name of this code-processor"
         raise NotImplementedError
-    
+
     def default_block_options(self):
         "Return a dictionary containing the processor's default block-options."
         # OVERRIDE THIS METHOD IF YOUR PROCESSOR NEEDS SPECIFIC OPTION DEFAULTS
         return {}
-    
+
     def process_foreign(self, processor_name, codeblock, codeblock_options):
         """Process specified codeblock with the named processor and options.
         
@@ -76,7 +76,7 @@ class CodeProcessor(object):
         return self.processors[processor_name].merge_options_and_process(
                                                             codeblock,
                                                             codeblock_options)
-    
+
     def merge_options_and_process(self, codeblock, codeblock_options):
         "Call self.process_code() after combining options and option-defaults."
         
@@ -85,7 +85,7 @@ class CodeProcessor(object):
         opts.update(codeblock_options)
         
         return self.process_code(codeblock, opts)
-    
+
     def process_code(self, codeblock, codeblock_options):
         """Process a code-block; return text to include in output documents.
         
@@ -129,13 +129,13 @@ class CodeProcessor(object):
         tmp.close()
         
         return result
-    
+
 
 class DefaultProcessor(CodeProcessor):
     def __init__(self, all_processors, execution_namespace=None):
         super(DefaultProcessor, self).__init__(all_processors, execution_namespace)
         self.nfig = 1
-    
+
     def name(self):
         "Return a string representing the name of this code-processor"
         return 'default'
