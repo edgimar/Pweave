@@ -1,10 +1,10 @@
 """
-This module defines a Matplotlib-figure processor class for use with Pweave.
+This module defines a Matplotlib-figure processor class for use with pweave.
 
 2011-01-14, Mark Edgington
 
 """
-# this plugin module is only imported by Pweave.py
+# this plugin module is only imported by pweave.py
 import __main__ as pweave
 CodeProcessor = pweave.CodeProcessor
 
@@ -21,7 +21,7 @@ class MatplotlibFigureProcessor(CodeProcessor):
     
     The following code-block options are accepted:
     
-    *output_folder* -- specifies the folder (relative to the Pweave source
+    *output_folder* -- specifies the folder (relative to the pweave source
                        file if not given as an absolute path) which should be
                        used for storing the generated image pdf files. This
                        folder will be created if it doesn't already exist. The

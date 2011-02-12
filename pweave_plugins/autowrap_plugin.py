@@ -1,10 +1,10 @@
 """
-This module defines the AutoWrapProcessor class for use with Pweave.
+This module defines the AutoWrapProcessor class for use with pweave.
 
 2011-01-28, Mark Edgington
 
 """
-# this plugin module is only imported by Pweave.py
+# this plugin module is only imported by pweave.py
 import __main__ as pweave
 CodeProcessor = pweave.CodeProcessor
 

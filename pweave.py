@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Pweave -- A literate programming tool for python 
+# pweave -- a literate programming tool for python 
 #
 # Copyright (C) 2010, Matti Pastell <matti.pastell@helsinki.fi>
 # Copyright (C) 2011, Mark Edgington <edgimar@gmail.com>
@@ -423,7 +423,7 @@ def load_processor_plugins(settings):
 def preprocess(input_text, processors):
     """Preprocesses *input_text* and returns preprocessed document and code text.
     
-    *input_text* should represent the entire contents of a Pweave source file.
+    *input_text* should represent the entire contents of a pweave source file.
     These contents will be processed according to the directives contained in
     them, and the text for the resulting output document and python file will
     be returned as the *doc_output_text* and *code_output_text* strings. 
@@ -493,7 +493,7 @@ def preprocess(input_text, processors):
 
 def weave_and_tangle(input_filename, doc_output_filename, code_output_filename,
                         processors):
-    "Process a Pweave file, writing the results to the specified output files."
+    "Process a pweave file, writing the results to the specified output files."
     
     input_text = open(input_filename, 'r').read()
     
@@ -557,7 +557,7 @@ def regularize_paths(settings_dict):
     """
     Process and replace the paths in the options dictionary, such that the
     following absolute paths (dict keys) are available:
-        sourcefile_path -- path to the Pweave source file
+        sourcefile_path -- path to the pweave source file
         base_input_path -- path to directory containing the source file
         base_output_path -- path to directory containing generated files
         imgfolder_path -- path to directory in which images should be placed
@@ -609,7 +609,7 @@ if __name__ == "__main__":
           help="Maintain backward-compatibility with original pweave version.")
     
     parser.add_option("-p", "--plugin-directory", dest="plugindir",
-          help="Optional directory containing Pweave plugin files.")
+          help="Optional directory containing pweave plugin files.")
     cmdline_opts, cmdline_args = parser.parse_args()
     if len(sys.argv)==1:
         parser.print_help()

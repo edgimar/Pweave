@@ -1,5 +1,5 @@
 """
-This module defines a HelloWorld class for use with Pweave.  It serves as a
+This module defines a HelloWorld class for use with pweave.  It serves as a
 simple example of how to write a processor.  To use the processor, run pweave
 on a file that looks like the following::
     
@@ -18,7 +18,7 @@ on a file that looks like the following::
 Now, eagerly open up the generated files, and be filled with glee.
 
 """
-# this plugin module is only imported by Pweave.py
+# this plugin module is only imported by pweave.py
 
 # The following two lines are required.
 import __main__ as pweave

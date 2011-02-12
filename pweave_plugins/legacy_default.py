@@ -1,10 +1,10 @@
 """
-This module defines the LegacyDefaultProcessor class for use with Pweave.
+This module defines the LegacyDefaultProcessor class for use with pweave.
 
 2011-02-11, Mark Edgington
 
 """
-# this plugin module is only imported by Pweave.py
+# this plugin module is only imported by pweave.py
 import __main__ as pweave
 CodeProcessor = pweave.CodeProcessor
 
@@ -17,9 +17,9 @@ import matplotlib.pyplot as plt
 
 
 class LegacyDefaultProcessor(CodeProcessor):
-    """Processor which maintains Pweave stable release backward compatibility.
+    """Processor which maintains pweave stable release backward compatibility.
     
-    The "default" processor included with the stable version of Pweave performs
+    The "default" processor included with the stable version of pweave performs
     a couple different functions, including code-evaluation and inclusion in the
     output document, as well as graphics capturing and inclusion.
     
