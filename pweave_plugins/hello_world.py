@@ -19,6 +19,8 @@ Now, eagerly open up the generated files, and be filled with glee.
 
 """
 # this plugin module is only imported by Pweave.py
+
+# The following two lines are required.
 import __main__ as pweave
 CodeProcessor = pweave.CodeProcessor
 
@@ -39,6 +41,14 @@ class HelloWorldProcessor(CodeProcessor):
     
     
     """
+    def __init__(self, processors):
+        # If you need to initialize your processor, *first* call the __init__()
+        # method of the parent class:
+        super(HelloWorldProcessor, self).__init__(processors)
+        #
+        # add any additional initialization needed by the processor here.
+        #
+    
     def name(self):
         return "helloworld"
     
