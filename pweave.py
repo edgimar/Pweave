@@ -29,22 +29,21 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
-exec_namespace = {} # global (and local) namespace for exec()'ed code
+# global (and local) dictionary holding (multiple) namespaces for exec()'ed code
+exec_namespaces = {} 
+exec_namespaces["default"] = {} 
 
 class CodeProcessor(object):
     "Base Class for code-processor classes, used for processing code blocks"
-    def __init__(self, all_processors, execution_namespace=None):
+    def __init__(self, all_processors):
         """
         *codeblock_options* -- a dictionary containing options specified for
                                the code-block.
-        *execution_namespace* -- a namespace dictionary used for executing
-                                 the code.
+        
         """
-        if execution_namespace is None:
-            # by default, use the namespace defined globally in this module
-            execution_namespace = exec_namespace
-
-        self.execution_namespace = execution_namespace
+        # initially, use the 'default' namespace for exec_code()
+        self.use_named_namespace('default')
+        
         self.settings = settings # settings is global to this mod.
 
         # dict with name->processor instance mapping
@@ -105,6 +104,24 @@ class CodeProcessor(object):
         # ... build document_text and code_text strings, etc.  ...
         
         return (document_text, code_text)
+    
+    def use_named_namespace(self, namespace_name):
+        """Use the namespace with *namespace_name* for the exec_code() method.
+        
+        *namespace_name* is a string which is mapped to a specific namespace
+        dictionary.  This string can be anything, and if no namespace
+        dictionary is associated with the string yet, one will be automatically
+        created and associated with the string.
+        
+        After calling this method, the exec_code() method of a CodeProcessor
+        instance will use the associated namespace.
+        
+        """
+        # exec_namespaces is a dictionary global to the pweave module.
+        if namespace_name not in exec_namespaces:
+            exec_namespaces[namespace_name] = {}
+        
+        self.execution_namespace = exec_namespaces[namespace_name]
 
     def exec_code(self, code_as_string):
         """Execute a block of code it's own (persistent) global namespace.
@@ -117,11 +134,18 @@ class CodeProcessor(object):
         tmp = StringIO.StringIO()
         sys.stdout = tmp
         
+        # check to see if namespace has been set for this instance
+        try:
+            self.execution_namespace
+        except AttributeError:
+            # if not, then use the default namespace
+            self.use_named_namespace('default')
+        
         # execute code, capturing stdout to tmp
         try:
-            print(eval(code_as_string, exec_namespace))
+            print(eval(code_as_string, self.execution_namespace))
         except:
-            exec(code_as_string, exec_namespace)
+            exec(code_as_string, self.execution_namespace)
         result = tmp.getvalue()
         
         # stop capturing and restore normal stdout
@@ -132,8 +156,8 @@ class CodeProcessor(object):
 
 
 class DefaultProcessor(CodeProcessor):
-    def __init__(self, all_processors, execution_namespace=None):
-        super(DefaultProcessor, self).__init__(all_processors, execution_namespace)
+    def __init__(self, all_processors):
+        super(DefaultProcessor, self).__init__(all_processors)
         self.nfig = 1
 
     def name(self):

@@ -8,9 +8,9 @@ This module defines the LegacyDefaultProcessor class for use with Pweave.
 import __main__ as pweave
 CodeProcessor = pweave.CodeProcessor
 
-from string import Template
-import re
-import sys
+import os
+import StringIO
+import matplotlib.pyplot as plt
 
 #TODO: make more general (e.g. not specific to LaTeX) -- just a "put x before
 #      and y after" plugin.
@@ -64,8 +64,8 @@ class LegacyDefaultProcessor(CodeProcessor):
                  float in Latex.
     
     """
-    def __init__(self, all_processors, execution_namespace=None):
-        super(LegacyDefaultProcessor, self).__init__(all_processors, execution_namespace)
+    def __init__(self, all_processors):
+        super(LegacyDefaultProcessor, self).__init__(all_processors)
         self.nfig = 1
     
     def name(self):
